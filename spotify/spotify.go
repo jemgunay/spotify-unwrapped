@@ -77,6 +77,7 @@ const apiURL = "https://api.spotify.com/v1/"
 
 type Playlist struct {
 	Name   string `json:"name"`
+	Owner  Owner `json:"owner"`
 	Tracks Track  `json:"tracks"`
 }
 
@@ -86,6 +87,7 @@ type Owner struct {
 
 type Track struct {
 	TrackItems []TrackItem `json:"items"`
+	NextURL    string      `json:"next"` // TODO: continue to read all tracks, until next is nil
 }
 
 type TrackItem struct {
@@ -93,11 +95,46 @@ type TrackItem struct {
 }
 
 type TrackDetail struct {
-	ID         string  `json:"id"`
-	Name       string  `json:"name"`
-	Popularity float64 `json:"popularity"`
+	ID               string   `json:"id"`
+	Name             string   `json:"name"`
+	Popularity       float64  `json:"popularity"`
+	Artists          []Artist `json:"artists"`
+	Explicit         bool     `json:"explicit"`
+	artistsFormatted string
+	trackFormatted   string
 }
 
+// GetTrackString lazy processes a track string of the format "Artist - Track".
+func (t *TrackDetail) GetTrackString() string {
+	if t.trackFormatted != "" {
+		return t.trackFormatted
+	}
+	t.trackFormatted = t.GetArtists() + " - " + t.Name
+	return t.trackFormatted
+}
+
+// GetArtists lazy processes artists into a comma separated string.
+func (t *TrackDetail) GetArtists() string {
+	if t.artistsFormatted != "" {
+		return t.artistsFormatted
+	}
+
+	for i, artist := range t.Artists {
+		t.artistsFormatted += artist.Name
+		if i < len(t.Artists)-1 {
+			t.artistsFormatted += ", "
+		}
+	}
+	return t.artistsFormatted
+}
+
+// Artist represents a single artist.
+type Artist struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
+// GetPlaylist gets all required data for the given playlist ID..
 func (r *Requester) GetPlaylist(id string) (Playlist, error) {
 	req, err := http.NewRequest(http.MethodGet, apiURL+"playlists/"+id, nil)
 	if err != nil {

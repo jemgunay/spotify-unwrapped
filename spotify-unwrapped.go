@@ -23,7 +23,7 @@ func main() {
 	// define HTTP handlers
 	handlers := api.New(spotifyReq)
 	r := mux.NewRouter()
-	r.HandleFunc("/api/v1/data/{target}/{id}", handlers.DataHandler).Methods(http.MethodGet)
+	r.HandleFunc("/api/v1/data/playlists/{id}", handlers.PlaylistsHandler).Methods(http.MethodGet)
 
 	// start HTTP server
 	err := http.ListenAndServe(":"+strconv.Itoa(conf.Port), r)
