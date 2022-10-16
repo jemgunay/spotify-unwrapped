@@ -1,10 +1,14 @@
 <template>
-  <v-row>
-    <v-col cols="12" class="pa-10">
+  <v-row class="pa-10">
+    <v-col cols="4">
+      <v-text-field label="Playlist ID" v-model="playlistID" :rules="playlistIDRules" @input="getPlaylistData"></v-text-field>
+    </v-col>
+
+    <v-col cols="12">
+
       <div v-if="dataError">
         <p>Failed to load data ({{ dataError }}).</p>
       </div>
-
 
       <div v-else-if="!loaded">
         <p>Loading data for playlist {{ playlistID }}...</p>
@@ -13,22 +17,15 @@
         <h3>{{ playlistName }} by {{ playlistOwner }}</h3>
         <hr>
 
+        <!-- stats table -->
         <v-simple-table>
           <template v-slot:default>
             <thead>
-            <tr>
-              <th class="text-left">
-                Stat
-              </th>
-              <th class="text-left">
-                Min
-              </th>
-              <th class="text-left">
-                Max
-              </th>
-              <th class="text-left">
-                Avg
-              </th>
+            <tr class="text-left">
+              <th>Stat</th>
+              <th>Min</th>
+              <th>Max</th>
+              <th>Avg</th>
             </tr>
             </thead>
             <tbody>
@@ -61,24 +58,46 @@ export default {
       loaded: false,
 
       playlistID: "1AXy6ag2d0ag8DEdOE7kWm",
+      lastPlaylistID: "",
+      playlistIDRules: [
+        value => !!value || 'Required.',
+        value => (value || '').length === 22 || 'Invalid playlist ID.',
+      ],
       playlistName: "",
       playlistOwner: "",
       playlistStats: {}
     }
   },
   mounted() {
-    axios
-        .get('http://localhost:8080/api/v1/data/playlists/' + this.playlistID)
-        .then(response => {
-          this.playlistName = response.data["playlist_name"];
-          this.playlistOwner = response.data["owner_name"];
-          this.playlistStats = response.data["stats"];
-          this.loaded = true;
-        })
-        .catch(error => {
-          console.log(error);
-          this.dataError = error;
-        })
-  }
+    this.getPlaylistData();
+  },
+  methods: {
+    getPlaylistData() {
+      if (this.playlistID === this.lastPlaylistID) {
+        return;
+      }
+
+      if ((this.playlistID || '').length !== 22) {
+        return;
+      }
+
+      axios
+          .get('http://localhost:8080/api/v1/data/playlists/' + this.playlistID)
+          .then(response => {
+            this.playlistName = response.data["playlist_name"];
+            this.playlistOwner = response.data["owner_name"];
+            this.playlistStats = response.data["stats"];
+
+            this.loaded = true;
+            this.lastPlaylistID = this.playlistID;
+            this.dataError = null;
+          })
+          .catch(error => {
+            console.log(error);
+            this.dataError = error;
+            this.lastPlaylistID = "";
+          })
+    }
+  },
 }
 </script>
