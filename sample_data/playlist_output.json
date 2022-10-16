@@ -1,0 +1,81 @@
+{
+  "acousticness": {
+    "min": {
+      "name": "Marga Man - Rough",
+      "value": 0.0000461
+    },
+    "max": {
+      "name": "Halogenix - Her Waves",
+      "value": 0.189
+    },
+    "avg": 0.014765333999999996
+  },
+  "danceability": {
+    "min": {
+      "name": "Amy Steele, Rockwell - Long Way Home - Rockwell Remix",
+      "value": 0.427
+    },
+    "max": {
+      "name": "Jam Thieves, MC Coppa - Get Out the Way",
+      "value": 0.86
+    },
+    "avg": 0.6663000000000001
+  },
+  "energy": {
+    "min": {
+      "name": "Euph, Arkaik - Hiatus - Arkaik Remix",
+      "value": 0.408
+    },
+    "max": {
+      "name": "T\u003eI - Switches",
+      "value": 1
+    },
+    "avg": 0.7573200000000003
+  },
+  "instrumentalness": {
+    "min": {
+      "name": "Traumatize - Gas Dem",
+      "value": 0.000017
+    },
+    "max": {
+      "name": "Dub Phizix - The Clock Ticks - Original Mix",
+      "value": 0.949
+    },
+    "avg": 0.5943879000000001
+  },
+  "owner_name": "Jem Gunay",
+  "playlist_name": "Minimal \u0026 Rollers",
+  "popularity": {
+    "min": {
+      "name": "Lupo, Sinja - Eager",
+      "value": 0
+    },
+    "max": {
+      "name": "Lenzman, Riya - Open Page",
+      "value": 48
+    },
+    "avg": 11.54
+  },
+  "speechiness": {
+    "min": {
+      "name": "Enei, Georgia Yates - Runnin - Original Mix",
+      "value": 0.0391
+    },
+    "max": {
+      "name": "Jam Thieves - Barrabas",
+      "value": 0.46
+    },
+    "avg": 0.12323500000000003
+  },
+  "valance": {
+    "min": {
+      "name": "Mohican Sun - Shadow",
+      "value": 0.0362
+    },
+    "max": {
+      "name": "Marga Man - Rough",
+      "value": 0.812
+    },
+    "avg": 0.25693900000000003
+  }
+}

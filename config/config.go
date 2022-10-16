@@ -8,10 +8,8 @@ import (
 
 // Config is the service config.
 type Config struct {
-	Port        int
-	WebAppHost  string
-	ServiceHost string
-	Spotify     Spotify
+	Port    int
+	Spotify Spotify
 }
 
 type Spotify struct {
@@ -23,9 +21,7 @@ type Spotify struct {
 func New() Config {
 	// attempt to get config environment vars, or default them
 	return Config{
-		Port:        getEnvVarInt("PORT", 8080),
-		WebAppHost:  getEnvVar("WEB_APP_HOST", "http://localhost:8081"),
-		ServiceHost: getEnvVar("SERVICE_HOST", "http://localhost:8080"),
+		Port: getEnvVarInt("PORT", 8080),
 		Spotify: Spotify{
 			ClientID:     getEnvVar("CLIENT_ID", ""),
 			ClientSecret: getEnvVar("CLIENT_SECRET", ""),

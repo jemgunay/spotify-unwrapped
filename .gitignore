@@ -15,4 +15,4 @@
 .idea
 
 spotify-unwrapped
-config/env-setup-local.sh
+config/local.env

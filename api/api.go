@@ -21,8 +21,8 @@ func New(spotifyReq spotify.Requester) API {
 }
 
 type statsDetail struct {
+	id    string
 	Name  string  `json:"name"`
-	id    string  `json:"id"`
 	Value float64 `json:"value"`
 }
 
@@ -116,15 +116,17 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 
 	// generate final output payload
 	stats := map[string]interface{}{
-		"playlist_name":    playlistData.Name,
-		"owner_name":       playlistData.Owner.DisplayName,
-		"popularity":       popularity,
-		"energy":           energy,
-		"danceability":     danceability,
-		"valance":          valance,
-		"acousticness":     acousticness,
-		"speechiness":      speechiness,
-		"instrumentalness": instrumentalness,
+		"playlist_name": playlistData.Name,
+		"owner_name":    playlistData.Owner.DisplayName,
+		"stats": map[string]interface{}{
+			"popularity":       popularity,
+			"energy":           energy,
+			"danceability":     danceability,
+			"valance":          valance,
+			"acousticness":     acousticness,
+			"speechiness":      speechiness,
+			"instrumentalness": instrumentalness,
+		},
 	}
 
 	respBody, err := json.Marshal(stats)
