@@ -1,7 +1,12 @@
 <template>
   <v-row class="pa-10">
     <v-col cols="4">
-      <v-text-field label="Playlist ID" v-model="playlistID" :rules="playlistIDRules" @input="getPlaylistData"></v-text-field>
+      <v-text-field
+          label="Playlist ID"
+          v-model="playlistID"
+          :rules="playlistIDRules"
+          :loading="loading"
+          @input="getPlaylistData"></v-text-field>
     </v-col>
 
     <v-col cols="12">
@@ -10,10 +15,10 @@
         <p>Failed to load data ({{ dataError }}).</p>
       </div>
 
-      <div v-else-if="!loaded">
-        <p>Loading data for playlist {{ playlistID }}...</p>
+      <div v-else-if="loading">
+        <p>Processing playlist {{ playlistID }}...</p>
       </div>
-      <div v-else>
+      <div v-if="playlistName">
         <h3>{{ playlistName }} by {{ playlistOwner }}</h3>
         <hr>
 
@@ -55,16 +60,16 @@ export default {
   data() {
     return {
       dataError: null,
-      loaded: false,
+      loading: false,
 
       playlistID: "1AXy6ag2d0ag8DEdOE7kWm",
-      lastPlaylistID: "",
+      lastPlaylistID: null,
       playlistIDRules: [
         value => !!value || 'Required.',
         value => (value || '').length === 22 || 'Invalid playlist ID.',
       ],
-      playlistName: "",
-      playlistOwner: "",
+      playlistName: null,
+      playlistOwner: null,
       playlistStats: {}
     }
   },
@@ -81,6 +86,7 @@ export default {
         return;
       }
 
+      this.loading = true;
       axios
           .get('http://localhost:8080/api/v1/data/playlists/' + this.playlistID)
           .then(response => {
@@ -88,7 +94,6 @@ export default {
             this.playlistOwner = response.data["owner_name"];
             this.playlistStats = response.data["stats"];
 
-            this.loaded = true;
             this.lastPlaylistID = this.playlistID;
             this.dataError = null;
           })
@@ -96,6 +101,9 @@ export default {
             console.log(error);
             this.dataError = error;
             this.lastPlaylistID = "";
+          })
+          .finally(() => {
+            this.loading = false;
           })
     }
   },
