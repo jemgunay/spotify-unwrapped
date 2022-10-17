@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
 	"log"
 	"net/http"
 
@@ -10,10 +11,12 @@ import (
 	"github.com/jemgunay/spotify-unwrapped/spotify"
 )
 
+// API is an API which also performs track data collection and aggregation.
 type API struct {
 	spotifyReq spotify.Requester
 }
 
+// New returns a Spotify API.
 func New(spotifyReq spotify.Requester) API {
 	return API{
 		spotifyReq: spotifyReq,
@@ -49,7 +52,7 @@ func (s *statsGroup) push(id string, val float64) {
 	}
 }
 
-func (s *statsGroup) calc(lookup map[string]spotify.TrackDetail) {
+func (s *statsGroup) calc(lookup map[string]spotify.TrackDetails) {
 	minTrack := lookup[s.Min.id]
 	s.Min.Name = minTrack.GetTrackString()
 	maxTrack := lookup[s.Max.id]
@@ -64,14 +67,18 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 	// fetch playlist data for given playlist ID
 	playlistData, err := a.spotifyReq.GetPlaylist(vars["id"])
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
 		log.Printf("failed to fetch playlist data: %s", err)
+		if errors.Is(err, spotify.ErrPlaylistNotFound) {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	var popularity statsGroup
 	trackIDsList := make([]string, 0, len(playlistData.Tracks.TrackItems))
-	trackIDLookup := make(map[string]spotify.TrackDetail, len(playlistData.Tracks.TrackItems))
+	trackIDLookup := make(map[string]spotify.TrackDetails, len(playlistData.Tracks.TrackItems))
 	for _, track := range playlistData.Tracks.TrackItems {
 		trackIDsList = append(trackIDsList, track.TrackDetails.ID)
 		trackIDLookup[track.TrackDetails.ID] = track.TrackDetails

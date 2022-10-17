@@ -10,10 +10,7 @@
     </v-col>
 
     <v-col cols="12">
-
-      <div v-if="dataError">
-        <p>Failed to load data ({{ dataError }}).</p>
-      </div>
+      <p v-if="dataError">{{ dataError }}</p>
 
       <div v-else-if="loading">
         <p>Processing playlist {{ playlistID }}...</p>
@@ -78,29 +75,35 @@ export default {
   },
   methods: {
     getPlaylistData() {
-      if (this.playlistID === this.lastPlaylistID) {
-        return;
-      }
+      this.dataError = null;
 
-      if ((this.playlistID || '').length !== 22) {
-        return;
-      }
+      // prevent fetching the same data for the previously searched playlist
+      if (this.playlistID === this.lastPlaylistID) return;
+      if ((this.playlistID || '').length !== 22) return;
 
       this.loading = true;
       axios
-          .get('http://localhost:8080/api/v1/data/playlists/' + this.playlistID)
+          .get('http://localhost:8080/api/v1/playlists/' + this.playlistID)
           .then(response => {
             this.playlistName = response.data["playlist_name"];
             this.playlistOwner = response.data["owner_name"];
             this.playlistStats = response.data["stats"];
 
             this.lastPlaylistID = this.playlistID;
-            this.dataError = null;
           })
           .catch(error => {
-            console.log(error);
-            this.dataError = error;
+            if (error.code === "ERR_NETWORK") {
+              this.dataError = "Failed to communicate with server (network error)...";
+              console.error(error);
+              return;
+            }
+            if (error.response.status === 404) {
+              this.dataError = "Playlist could not be found...";
+              return;
+            }
             this.lastPlaylistID = "";
+            this.dataError = "Failed to load data: " + error.message;
+            console.error(error);
           })
           .finally(() => {
             this.loading = false;

@@ -3,8 +3,9 @@ package spotify
 import (
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
@@ -14,12 +15,14 @@ import (
 	"github.com/jemgunay/spotify-unwrapped/config"
 )
 
+// Requester wraps the Spotify HTTP REST API.
 type Requester struct {
 	httpClient  *http.Client
 	conf        config.Spotify
 	accessToken string
 }
 
+// New initialises a Requester.
 func New(conf config.Spotify) Requester {
 	return Requester{
 		conf: conf,
@@ -34,6 +37,7 @@ type authRespBody struct {
 	ExpiresIn   int    `json:"expires_in"`
 }
 
+// Auth requests an access token for
 func (r *Requester) Auth() error {
 	// create URL encoded body
 	formValues := url.Values{}
@@ -46,7 +50,7 @@ func (r *Requester) Auth() error {
 	}
 
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	// base64 auth secrets
+	// base64 basic auth secrets
 	base64Auth := base64.StdEncoding.EncodeToString([]byte(r.conf.ClientID + ":" + r.conf.ClientSecret))
 	req.Header.Set("Authorization", "Basic "+base64Auth)
 
@@ -67,45 +71,51 @@ func (r *Requester) Auth() error {
 
 	// successfully authenticated
 	r.accessToken = authBody.AccessToken
-
-	log.Printf("access token: %s", r.accessToken)
+	expiry := time.Now().Add(time.Duration(authBody.ExpiresIn) * time.Second)
+	log.Printf("successfully created authenticated Spotify client, expires at %s", expiry.Format(time.RFC3339))
+	// log.Printf("access token: %s", r.accessToken)
 
 	return nil
 }
 
 const apiURL = "https://api.spotify.com/v1/"
 
+// Playlist represents a playlist of tracks.
 type Playlist struct {
 	Name   string `json:"name"`
-	Owner  Owner `json:"owner"`
-	Tracks Track  `json:"tracks"`
+	Owner  Owner  `json:"owner"`
+	Tracks Tracks `json:"tracks"`
 }
 
+// Owner represents a playlist owner.
 type Owner struct {
 	DisplayName string `json:"display_name"`
 }
 
-type Track struct {
+// Tracks represents a paginated set of track.
+type Tracks struct {
 	TrackItems []TrackItem `json:"items"`
 	NextURL    string      `json:"next"` // TODO: continue to read all tracks, until next is nil
 }
 
+// TrackItem represents the details for a given track.
 type TrackItem struct {
-	TrackDetails TrackDetail `json:"track"`
+	TrackDetails TrackDetails `json:"track"`
 }
 
-type TrackDetail struct {
+// TrackDetails represents the details of a track.
+type TrackDetails struct {
 	ID               string   `json:"id"`
 	Name             string   `json:"name"`
-	Popularity       float64  `json:"popularity"`
+	Popularity       float64  `json:"popularity"` // 0-100
 	Artists          []Artist `json:"artists"`
 	Explicit         bool     `json:"explicit"`
 	artistsFormatted string
 	trackFormatted   string
 }
 
-// GetTrackString lazy processes a track string of the format "Artist - Track".
-func (t *TrackDetail) GetTrackString() string {
+// GetTrackString lazy processes a track string of the format "Artist - Tracks".
+func (t *TrackDetails) GetTrackString() string {
 	if t.trackFormatted != "" {
 		return t.trackFormatted
 	}
@@ -114,7 +124,7 @@ func (t *TrackDetail) GetTrackString() string {
 }
 
 // GetArtists lazy processes artists into a comma separated string.
-func (t *TrackDetail) GetArtists() string {
+func (t *TrackDetails) GetArtists() string {
 	if t.artistsFormatted != "" {
 		return t.artistsFormatted
 	}
@@ -134,7 +144,11 @@ type Artist struct {
 	Name string `json:"name"`
 }
 
-// GetPlaylist gets all required data for the given playlist ID..
+// ErrPlaylistNotFound indicates that the requested playlist ID does not exist.
+var ErrPlaylistNotFound = errors.New("playlist not found")
+
+// GetPlaylist gets all required data for the given playlist ID.
+// https://developer.spotify.com/documentation/web-api/reference/#/operations/get-playlist
 func (r *Requester) GetPlaylist(id string) (Playlist, error) {
 	req, err := http.NewRequest(http.MethodGet, apiURL+"playlists/"+id, nil)
 	if err != nil {
@@ -149,27 +163,33 @@ func (r *Requester) GetPlaylist(id string) (Playlist, error) {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
+	switch resp.StatusCode {
+	case http.StatusOK:
+	case http.StatusNotFound:
+		return Playlist{}, ErrPlaylistNotFound
+	default:
 		return Playlist{}, fmt.Errorf("unexpected status from playlist request: %s", resp.Status)
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return Playlist{}, fmt.Errorf("failed to read playlist resp body: %s", err)
+		return Playlist{}, fmt.Errorf("failed to read playlist resp body: %w", err)
 	}
 
 	playlist := Playlist{}
 	if err := json.Unmarshal(body, &playlist); err != nil {
-		return Playlist{}, fmt.Errorf("failed to JSON unmarshal playlist resp body: %s", err)
+		return Playlist{}, fmt.Errorf("failed to JSON unmarshal playlist resp body: %w", err)
 	}
 
 	return playlist, nil
 }
 
+// AudioFeaturesResult represents the response body from the Spotify audio features API.
 type AudioFeaturesResult struct {
 	Features []AudioFeatures `json:"audio_features"`
 }
 
+// AudioFeatures represents the properties of a track.
 type AudioFeatures struct {
 	Danceability     float64 `json:"danceability"`
 	Energy           float64 `json:"energy"`
@@ -191,6 +211,8 @@ type AudioFeatures struct {
 	TimeSignature    int     `json:"time_signature"`
 }
 
+// GetAudioFeatures gets audio properties for a set of tracks.
+// https://developer.spotify.com/documentation/web-api/reference/#/operations/get-several-audio-features
 func (r *Requester) GetAudioFeatures(trackIDs []string) ([]AudioFeatures, error) {
 	idStr := strings.Join(trackIDs, ",")
 
@@ -211,14 +233,14 @@ func (r *Requester) GetAudioFeatures(trackIDs []string) ([]AudioFeatures, error)
 		return nil, fmt.Errorf("unexpected status from audio features request: %s", resp.Status)
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read audio features resp body: %s", err)
+		return nil, fmt.Errorf("failed to read audio features resp body: %w", err)
 	}
 
 	audioFeaturesResult := AudioFeaturesResult{}
 	if err := json.Unmarshal(body, &audioFeaturesResult); err != nil {
-		return nil, fmt.Errorf("failed to JSON unmarshal audio features resp body: %s", err)
+		return nil, fmt.Errorf("failed to JSON unmarshal audio features resp body: %w", err)
 	}
 
 	return audioFeaturesResult.Features, nil

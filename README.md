@@ -18,6 +18,8 @@ https://developer.spotify.com/documentation/web-api/reference/#/operations/get-s
 1. Get averages of the above
 1. Get most/least energetic tune in a playlist
 1. Oldest/newest track in a playlist? Graph years playlist tracks were released in
+1. Pie chart of genre frequency in a playlist?
+2. Explicit pie chart?
 
 * Artist/album popularity?
 

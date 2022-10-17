@@ -15,6 +15,7 @@ import (
 func main() {
 	conf := config.New()
 
+	// generate Spotify client auth token
 	spotifyReq := spotify.New(conf.Spotify)
 	for {
 		if err := spotifyReq.Auth(); err != nil {
@@ -28,7 +29,7 @@ func main() {
 	handlers := api.New(spotifyReq)
 	r := mux.NewRouter()
 	r.Use(allowCORSMiddleware)
-	r.HandleFunc("/api/v1/data/playlists/{id}", handlers.PlaylistsHandler).Methods(http.MethodGet)
+	r.HandleFunc("/api/v1/playlists/{id}", handlers.PlaylistsHandler).Methods(http.MethodGet)
 
 	// start HTTP server
 	err := http.ListenAndServe(":"+strconv.Itoa(conf.Port), r)
