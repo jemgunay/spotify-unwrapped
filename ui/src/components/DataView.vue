@@ -16,7 +16,11 @@
         <p>Processing playlist {{ playlistID }}...</p>
       </div>
 
-      <ExplicitChart :explicitnessData="explicitnessStats"/>
+      <v-row>
+        <v-col cols="6">
+          <ExplicitChart :explicitnessData="explicitnessStats"/>
+        </v-col>
+      </v-row>
 
       <div v-if="playlistName">
         <h3>{{ playlistName }} by {{ playlistOwner }}</h3>

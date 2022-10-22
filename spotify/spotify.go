@@ -39,7 +39,6 @@ type authRespBody struct {
 
 // Auth requests an access token for
 func (r *Requester) Auth() error {
-	// create URL encoded body
 	formValues := url.Values{}
 	formValues.Set("grant_type", "client_credentials")
 	formValuesBuf := strings.NewReader(formValues.Encode())
@@ -144,20 +143,51 @@ type Artist struct {
 	Name string `json:"name"`
 }
 
-// ErrNotFound indicates that the requested ID does not exist.
+// ErrNotFound indicates that the requested resource does not exist.
 var ErrNotFound = errors.New("not found")
 
 // GetPlaylist gets all required data for the given playlist ID.
 // https://developer.spotify.com/documentation/web-api/reference/#/operations/get-playlist
 func (r *Requester) GetPlaylist(id string) (Playlist, error) {
-	reqURL := apiURL + "playlists/" + id
-	playlist := Playlist{}
+	playlist, err := r.getPlaylist(id)
+	if err != nil {
+		return playlist, err
+	}
 
+	// get the rest of the paginated playlist tracks
+	for {
+		if playlist.Tracks.NextURL == "" {
+			return playlist, nil
+		}
+
+		playlistTracks, err := r.getPlaylistTracksPage(playlist.Tracks.NextURL)
+		if err != nil {
+			return playlist, err
+		}
+
+		playlist.Tracks.TrackItems = append(playlist.Tracks.TrackItems, playlistTracks.TrackItems...)
+		playlist.Tracks.NextURL = playlistTracks.NextURL
+	}
+}
+
+func (r *Requester) getPlaylist(id string) (Playlist, error) {
+	reqURL := apiURL + "playlists/" + id
+
+	playlist := Playlist{}
 	if err := r.get(reqURL, &playlist); err != nil {
 		return playlist, fmt.Errorf("audio features request failed: %w", err)
 	}
 
 	return playlist, nil
+}
+
+func (r *Requester) getPlaylistTracksPage(nextURL string) (Tracks, error) {
+	tracks := Tracks{}
+	if err := r.get(nextURL, &tracks); err != nil {
+		return tracks, fmt.Errorf("audio features request failed: %w", err)
+	}
+
+	return tracks, nil
 }
 
 // AudioFeaturesResult represents the response body from the Spotify audio features API.
@@ -190,18 +220,34 @@ type AudioFeatures struct {
 // GetAudioFeatures gets audio properties for a set of tracks.
 // https://developer.spotify.com/documentation/web-api/reference/#/operations/get-several-audio-features
 func (r *Requester) GetAudioFeatures(trackIDs []string) ([]AudioFeatures, error) {
-	reqURL := apiURL + "audio-features?ids=" + strings.Join(trackIDs, ",")
-	audioFeaturesResult := AudioFeaturesResult{}
+	totalAudioFeatures := AudioFeaturesResult{}
+	for i := 100; ; i += 100 {
+		lower := i - 100
+		if i > len(trackIDs) {
+			i = len(trackIDs)
+		}
+		ids := trackIDs[lower:i]
+		reqURL := apiURL + "audio-features?ids=" + strings.Join(ids, ",")
 
-	if err := r.get(reqURL, &audioFeaturesResult); err != nil {
-		return nil, fmt.Errorf("audio features request failed: %w", err)
+		audioFeatures := AudioFeaturesResult{}
+		if err := r.get(reqURL, &audioFeatures); err != nil {
+			return nil, fmt.Errorf("audio features request failed: %w", err)
+		}
+
+		if len(totalAudioFeatures.Features) == 0 {
+			totalAudioFeatures = audioFeatures
+		} else {
+			totalAudioFeatures.Features = append(totalAudioFeatures.Features, audioFeatures.Features...)
+		}
+
+		if i == len(trackIDs) {
+			return totalAudioFeatures.Features, nil
+		}
 	}
-
-	return audioFeaturesResult.Features, nil
 }
 
-func (r *Requester) get(url string, target interface{}) error {
-	req, err := http.NewRequest(http.MethodGet, url, nil)
+func (r *Requester) get(reqURL string, target interface{}) error {
+	req, err := http.NewRequest(http.MethodGet, reqURL, nil)
 	if err != nil {
 		return fmt.Errorf("failed to create request: %w", err)
 	}
