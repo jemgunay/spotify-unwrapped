@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gorilla/mux"
 
@@ -20,6 +21,7 @@ func main() {
 	for {
 		if err := spotifyReq.Auth(); err != nil {
 			log.Printf("failed to auth spotify client: %s", err)
+			time.Sleep(time.Second)
 			continue
 		}
 		break

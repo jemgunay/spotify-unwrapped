@@ -15,6 +15,9 @@
       <div v-else-if="loading">
         <p>Processing playlist {{ playlistID }}...</p>
       </div>
+
+      <ExplicitChart :explicitnessData="explicitnessStats"/>
+
       <div v-if="playlistName">
         <h3>{{ playlistName }} by {{ playlistOwner }}</h3>
         <hr>
@@ -32,7 +35,7 @@
             </thead>
             <tbody>
             <tr
-                v-for="(stats, statName) in playlistStats"
+                v-for="(stats, statName) in rawPlaylistStats"
                 :key="statName"
             >
               <td>{{ statName }}</td>
@@ -52,8 +55,13 @@
 <script>
 import axios from "axios";
 
+import ExplicitChart from "./charts/ExplicitChart";
+
 export default {
   name: 'DataView',
+  components: {
+    ExplicitChart
+  },
   data() {
     return {
       dataError: null,
@@ -67,7 +75,8 @@ export default {
       ],
       playlistName: null,
       playlistOwner: null,
-      playlistStats: {}
+      rawPlaylistStats: {},
+      explicitnessStats: {}
     }
   },
   mounted() {
@@ -87,7 +96,8 @@ export default {
           .then(response => {
             this.playlistName = response.data["playlist_name"];
             this.playlistOwner = response.data["owner_name"];
-            this.playlistStats = response.data["stats"];
+            this.rawPlaylistStats = response.data["stats"]["raw"];
+            this.explicitnessStats = response.data["stats"]["explicitness"];
 
             this.lastPlaylistID = this.playlistID;
           })

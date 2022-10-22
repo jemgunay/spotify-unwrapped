@@ -60,6 +60,16 @@ func (s *statsGroup) calc(lookup map[string]spotify.TrackDetails) {
 	s.Mean = s.sum / s.count
 }
 
+type statsMapping map[string]int
+
+func newStatsMapping(capacity int) statsMapping {
+	return make(map[string]int, capacity)
+}
+
+func (m statsMapping) push(key string) {
+	m[key] = m[key] + 1
+}
+
 // PlaylistsHandler provides data used to drive visualisations.
 func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
@@ -77,6 +87,7 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var popularity statsGroup
+	explicitMapping := newStatsMapping(2)
 	trackIDsList := make([]string, 0, len(playlistData.Tracks.TrackItems))
 	trackIDLookup := make(map[string]spotify.TrackDetails, len(playlistData.Tracks.TrackItems))
 	for _, track := range playlistData.Tracks.TrackItems {
@@ -84,6 +95,12 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 		trackIDLookup[track.TrackDetails.ID] = track.TrackDetails
 		// aggregate track popularity
 		popularity.push(track.TrackDetails.ID, track.TrackDetails.Popularity)
+
+		if track.TrackDetails.Explicit {
+			explicitMapping.push("explicit")
+		} else {
+			explicitMapping.push("non-explicit")
+		}
 	}
 
 	// bulk fetch audio feature data for each track in playlist
@@ -126,13 +143,16 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 		"playlist_name": playlistData.Name,
 		"owner_name":    playlistData.Owner.DisplayName,
 		"stats": map[string]interface{}{
-			"popularity":       popularity,
-			"energy":           energy,
-			"danceability":     danceability,
-			"valance":          valance,
-			"acousticness":     acousticness,
-			"speechiness":      speechiness,
-			"instrumentalness": instrumentalness,
+			"raw": map[string]interface{}{
+				"popularity":       popularity,
+				"energy":           energy,
+				"danceability":     danceability,
+				"valance":          valance,
+				"acousticness":     acousticness,
+				"speechiness":      speechiness,
+				"instrumentalness": instrumentalness,
+			},
+			"explicitness": explicitMapping,
 		},
 	}
 
