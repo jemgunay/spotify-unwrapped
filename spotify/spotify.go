@@ -95,7 +95,7 @@ type Owner struct {
 // Tracks represents a paginated set of track.
 type Tracks struct {
 	TrackItems []TrackItem `json:"items"`
-	NextURL    string      `json:"next"` // TODO: continue to read all tracks, until next is nil
+	NextURL    string      `json:"next"`
 }
 
 // TrackItem represents the details for a given track.
@@ -144,41 +144,17 @@ type Artist struct {
 	Name string `json:"name"`
 }
 
-// ErrPlaylistNotFound indicates that the requested playlist ID does not exist.
-var ErrPlaylistNotFound = errors.New("playlist not found")
+// ErrNotFound indicates that the requested ID does not exist.
+var ErrNotFound = errors.New("not found")
 
 // GetPlaylist gets all required data for the given playlist ID.
 // https://developer.spotify.com/documentation/web-api/reference/#/operations/get-playlist
 func (r *Requester) GetPlaylist(id string) (Playlist, error) {
-	req, err := http.NewRequest(http.MethodGet, apiURL+"playlists/"+id, nil)
-	if err != nil {
-		return Playlist{}, fmt.Errorf("failed to create playlist request: %w", err)
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+r.accessToken)
-
-	resp, err := r.httpClient.Do(req)
-	if err != nil {
-		return Playlist{}, fmt.Errorf("failed to perform playlist request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	switch resp.StatusCode {
-	case http.StatusOK:
-	case http.StatusNotFound:
-		return Playlist{}, ErrPlaylistNotFound
-	default:
-		return Playlist{}, fmt.Errorf("unexpected status from playlist request: %s", resp.Status)
-	}
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return Playlist{}, fmt.Errorf("failed to read playlist resp body: %w", err)
-	}
-
+	reqURL := apiURL + "playlists/" + id
 	playlist := Playlist{}
-	if err := json.Unmarshal(body, &playlist); err != nil {
-		return Playlist{}, fmt.Errorf("failed to JSON unmarshal playlist resp body: %w", err)
+
+	if err := r.get(reqURL, &playlist); err != nil {
+		return playlist, fmt.Errorf("audio features request failed: %w", err)
 	}
 
 	return playlist, nil
@@ -214,34 +190,46 @@ type AudioFeatures struct {
 // GetAudioFeatures gets audio properties for a set of tracks.
 // https://developer.spotify.com/documentation/web-api/reference/#/operations/get-several-audio-features
 func (r *Requester) GetAudioFeatures(trackIDs []string) ([]AudioFeatures, error) {
-	idStr := strings.Join(trackIDs, ",")
+	reqURL := apiURL + "audio-features?ids=" + strings.Join(trackIDs, ",")
+	audioFeaturesResult := AudioFeaturesResult{}
 
-	req, err := http.NewRequest(http.MethodGet, apiURL+"audio-features?ids="+idStr, nil)
+	if err := r.get(reqURL, &audioFeaturesResult); err != nil {
+		return nil, fmt.Errorf("audio features request failed: %w", err)
+	}
+
+	return audioFeaturesResult.Features, nil
+}
+
+func (r *Requester) get(url string, target interface{}) error {
+	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create audio features request: %w", err)
+		return fmt.Errorf("failed to create request: %w", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+r.accessToken)
 
 	resp, err := r.httpClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("failed to perform audio features request: %w", err)
+		return fmt.Errorf("failed to perform request: %w", err)
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status from audio features request: %s", resp.Status)
+	switch resp.StatusCode {
+	case http.StatusOK:
+	case http.StatusNotFound:
+		return ErrNotFound
+	default:
+		return fmt.Errorf("unexpected response status: %s", resp.Status)
 	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read audio features resp body: %w", err)
+		return fmt.Errorf("failed to read resp body: %w", err)
 	}
 
-	audioFeaturesResult := AudioFeaturesResult{}
-	if err := json.Unmarshal(body, &audioFeaturesResult); err != nil {
-		return nil, fmt.Errorf("failed to JSON unmarshal audio features resp body: %w", err)
+	if err := json.Unmarshal(body, target); err != nil {
+		return fmt.Errorf("failed to JSON unmarshal response body: %w", err)
 	}
 
-	return audioFeaturesResult.Features, nil
+	return nil
 }

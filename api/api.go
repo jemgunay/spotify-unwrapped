@@ -78,7 +78,7 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 	playlistData, err := a.spotifyReq.GetPlaylist(vars["id"])
 	if err != nil {
 		log.Printf("failed to fetch playlist data: %s", err)
-		if errors.Is(err, spotify.ErrPlaylistNotFound) {
+		if errors.Is(err, spotify.ErrNotFound) {
 			w.WriteHeader(http.StatusNotFound)
 			return
 		}
