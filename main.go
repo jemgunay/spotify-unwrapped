@@ -34,6 +34,7 @@ func main() {
 	r.HandleFunc("/api/v1/playlists/{id}", handlers.PlaylistsHandler).Methods(http.MethodGet)
 
 	// start HTTP server
+	log.Printf("starting HTTP server on port %d", conf.Port)
 	err := http.ListenAndServe(":"+strconv.Itoa(conf.Port), r)
 	log.Printf("HTTP server shut down: %s", err)
 }

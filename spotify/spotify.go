@@ -108,6 +108,7 @@ type TrackDetails struct {
 	Name             string   `json:"name"`
 	Popularity       float64  `json:"popularity"` // 0-100
 	Artists          []Artist `json:"artists"`
+	Album            Album    `json:"album"`
 	Explicit         bool     `json:"explicit"`
 	artistsFormatted string
 	trackFormatted   string
@@ -143,6 +144,11 @@ type Artist struct {
 	Name string `json:"name"`
 }
 
+// Album represents a single album.
+type Album struct {
+	ReleaseDate string `json:"release_date"`
+}
+
 // ErrNotFound indicates that the requested resource does not exist.
 var ErrNotFound = errors.New("not found")
 
@@ -175,7 +181,7 @@ func (r *Requester) getPlaylist(id string) (Playlist, error) {
 
 	playlist := Playlist{}
 	if err := r.get(reqURL, &playlist); err != nil {
-		return playlist, fmt.Errorf("audio features request failed: %w", err)
+		return playlist, fmt.Errorf("get playlist request failed: %w", err)
 	}
 
 	return playlist, nil
@@ -184,7 +190,7 @@ func (r *Requester) getPlaylist(id string) (Playlist, error) {
 func (r *Requester) getPlaylistTracksPage(nextURL string) (Tracks, error) {
 	tracks := Tracks{}
 	if err := r.get(nextURL, &tracks); err != nil {
-		return tracks, fmt.Errorf("audio features request failed: %w", err)
+		return tracks, fmt.Errorf("get playlist tracks request failed: %w", err)
 	}
 
 	return tracks, nil
@@ -254,6 +260,8 @@ func (r *Requester) get(reqURL string, target interface{}) error {
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+r.accessToken)
 
+	getCurl(req)
+
 	resp, err := r.httpClient.Do(req)
 	if err != nil {
 		return fmt.Errorf("failed to perform request: %w", err)
@@ -278,4 +286,11 @@ func (r *Requester) get(reqURL string, target interface{}) error {
 	}
 
 	return nil
+}
+
+func getCurl(req *http.Request) {
+	u := req.URL.String()
+	method := req.Method
+	auth := req.Header.Get("Authorization")
+	log.Printf("curl -i X%s '%s' -H 'Authorization: %s'", method, u, auth)
 }

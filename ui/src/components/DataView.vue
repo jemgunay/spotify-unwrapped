@@ -19,6 +19,7 @@
       <v-row>
         <v-col cols="6">
           <ExplicitChart :explicitnessData="explicitnessStats"/>
+          <ReleaseDateChart :releaseDateData="releaseDateStats"/>
         </v-col>
       </v-row>
 
@@ -60,10 +61,12 @@
 import axios from "axios";
 
 import ExplicitChart from "./charts/ExplicitChart";
+import ReleaseDateChart from "@/components/charts/ReleaseDateChart";
 
 export default {
   name: 'DataView',
   components: {
+    ReleaseDateChart,
     ExplicitChart
   },
   data() {
@@ -80,7 +83,8 @@ export default {
       playlistName: null,
       playlistOwner: null,
       rawPlaylistStats: {},
-      explicitnessStats: {}
+      explicitnessStats: {},
+      releaseDateStats: {}
     }
   },
   mounted() {
@@ -102,6 +106,7 @@ export default {
             this.playlistOwner = response.data["owner_name"];
             this.rawPlaylistStats = response.data["stats"]["raw"];
             this.explicitnessStats = response.data["stats"]["explicitness"];
+            this.releaseDateStats = response.data["stats"]["release_dates"];
 
             this.lastPlaylistID = this.playlistID;
           })

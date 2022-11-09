@@ -5,6 +5,9 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"sort"
+	"strconv"
+	"time"
 
 	"github.com/gorilla/mux"
 
@@ -70,6 +73,35 @@ func (m statsMapping) push(key string) {
 	m[key] = m[key] + 1
 }
 
+type orderedKVPair struct {
+	Keys   []string `json:"keys"`
+	Values []int    `json:"values"`
+}
+
+func (p *orderedKVPair) Len() int {
+	return len(p.Keys)
+}
+func (p *orderedKVPair) Less(i int, j int) bool {
+	return p.Keys[i] < p.Keys[j]
+}
+func (p *orderedKVPair) Swap(i int, j int) {
+	p.Keys[i], p.Keys[j] = p.Keys[j], p.Keys[i]
+	p.Values[i], p.Values[j] = p.Values[j], p.Values[i]
+}
+
+func (m statsMapping) orderedLabelsAndValues() orderedKVPair {
+	pair := orderedKVPair{
+		Keys:   make([]string, 0, len(m)),
+		Values: make([]int, 0, len(m)),
+	}
+	for k, v := range m {
+		pair.Keys = append(pair.Keys, k)
+		pair.Values = append(pair.Values, v)
+	}
+	sort.Sort(&pair)
+	return pair
+}
+
 // PlaylistsHandler provides data used to drive visualisations.
 func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
@@ -88,13 +120,20 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 
 	var popularity statsGroup
 	explicitMapping := newStatsMapping(2)
+	releaseDatesMapping := newStatsMapping(10)
 	trackIDsList := make([]string, 0, len(playlistData.Tracks.TrackItems))
 	trackIDLookup := make(map[string]spotify.TrackDetails, len(playlistData.Tracks.TrackItems))
+
 	for _, track := range playlistData.Tracks.TrackItems {
 		trackIDsList = append(trackIDsList, track.TrackDetails.ID)
 		trackIDLookup[track.TrackDetails.ID] = track.TrackDetails
 		// aggregate track popularity
 		popularity.push(track.TrackDetails.ID, track.TrackDetails.Popularity)
+		// aggregate by release year
+		releaseDate, err := time.Parse("2006-01-02", track.TrackDetails.Album.ReleaseDate)
+		if err == nil {
+			releaseDatesMapping.push(strconv.Itoa(releaseDate.Year()))
+		}
 
 		if track.TrackDetails.Explicit {
 			explicitMapping.push("explicit")
@@ -152,7 +191,8 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 				"speechiness":      speechiness,
 				"instrumentalness": instrumentalness,
 			},
-			"explicitness": explicitMapping,
+			"explicitness":  explicitMapping,
+			"release_dates": releaseDatesMapping.orderedLabelsAndValues(),
 		},
 	}
 
