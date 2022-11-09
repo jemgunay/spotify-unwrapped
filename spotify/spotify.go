@@ -6,13 +6,13 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
 
 	"github.com/jemgunay/spotify-unwrapped/config"
+	"go.uber.org/zap"
 )
 
 // Requester wraps the Spotify HTTP REST API.
@@ -20,15 +20,17 @@ type Requester struct {
 	httpClient  *http.Client
 	conf        config.Spotify
 	accessToken string
+	logger      config.Logger
 }
 
 // New initialises a Requester.
-func New(conf config.Spotify) Requester {
+func New(logger config.Logger, conf config.Spotify) Requester {
 	return Requester{
 		conf: conf,
 		httpClient: &http.Client{
 			Timeout: time.Second * 10,
 		},
+		logger: logger,
 	}
 }
 
@@ -71,8 +73,7 @@ func (r *Requester) Auth() error {
 	// successfully authenticated
 	r.accessToken = authBody.AccessToken
 	expiry := time.Now().Add(time.Duration(authBody.ExpiresIn) * time.Second)
-	log.Printf("successfully created authenticated Spotify client, expires at %s", expiry.Format(time.RFC3339))
-	// log.Printf("access token: %s", r.accessToken)
+	r.logger.Info("successfully created authenticated Spotify client", zap.Time("expiry", expiry))
 
 	return nil
 }
@@ -260,7 +261,7 @@ func (r *Requester) get(reqURL string, target interface{}) error {
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+r.accessToken)
 
-	getCurl(req)
+	r.getCurl(req)
 
 	resp, err := r.httpClient.Do(req)
 	if err != nil {
@@ -288,9 +289,10 @@ func (r *Requester) get(reqURL string, target interface{}) error {
 	return nil
 }
 
-func getCurl(req *http.Request) {
+func (r *Requester) getCurl(req *http.Request) {
 	u := req.URL.String()
 	method := req.Method
 	auth := req.Header.Get("Authorization")
-	log.Printf("curl -i X%s '%s' -H 'Authorization: %s'", method, u, auth)
+	curl := fmt.Sprintf("curl -i X%s '%s' -H 'Authorization: %s'", method, u, auth)
+	r.logger.Debug(curl)
 }

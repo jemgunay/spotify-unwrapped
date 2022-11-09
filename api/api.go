@@ -3,103 +3,30 @@ package api
 import (
 	"encoding/json"
 	"errors"
-	"log"
 	"net/http"
-	"sort"
 	"strconv"
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/jemgunay/spotify-unwrapped/config"
+	"github.com/jemgunay/spotify-unwrapped/stats"
+	"go.uber.org/zap"
 
 	"github.com/jemgunay/spotify-unwrapped/spotify"
 )
 
 // API is an API which also performs track data collection and aggregation.
 type API struct {
+	logger     config.Logger
 	spotifyReq spotify.Requester
 }
 
 // New returns a Spotify API.
-func New(spotifyReq spotify.Requester) API {
+func New(logger config.Logger, spotifyReq spotify.Requester) API {
 	return API{
+		logger:     logger,
 		spotifyReq: spotifyReq,
 	}
-}
-
-type statsDetail struct {
-	id    string
-	Name  string  `json:"name"`
-	Value float64 `json:"value"`
-}
-
-type statsGroup struct {
-	Min   statsDetail `json:"min"`
-	Max   statsDetail `json:"max"`
-	sum   float64
-	count float64
-	Mean  float64 `json:"avg"`
-}
-
-func (s *statsGroup) push(id string, val float64) {
-	s.sum += val
-	s.count++
-
-	switch {
-	case s.Min.id == "":
-		s.Min = statsDetail{id: id, Value: val}
-		s.Max = statsDetail{id: id, Value: val}
-	case val > s.Max.Value:
-		s.Max = statsDetail{id: id, Value: val}
-	case val < s.Min.Value:
-		s.Min = statsDetail{id: id, Value: val}
-	}
-}
-
-func (s *statsGroup) calc(lookup map[string]spotify.TrackDetails) {
-	minTrack := lookup[s.Min.id]
-	s.Min.Name = minTrack.GetTrackString()
-	maxTrack := lookup[s.Max.id]
-	s.Max.Name = maxTrack.GetTrackString()
-	s.Mean = s.sum / s.count
-}
-
-type statsMapping map[string]int
-
-func newStatsMapping(capacity int) statsMapping {
-	return make(map[string]int, capacity)
-}
-
-func (m statsMapping) push(key string) {
-	m[key] = m[key] + 1
-}
-
-type orderedKVPair struct {
-	Keys   []string `json:"keys"`
-	Values []int    `json:"values"`
-}
-
-func (p *orderedKVPair) Len() int {
-	return len(p.Keys)
-}
-func (p *orderedKVPair) Less(i int, j int) bool {
-	return p.Keys[i] < p.Keys[j]
-}
-func (p *orderedKVPair) Swap(i int, j int) {
-	p.Keys[i], p.Keys[j] = p.Keys[j], p.Keys[i]
-	p.Values[i], p.Values[j] = p.Values[j], p.Values[i]
-}
-
-func (m statsMapping) orderedLabelsAndValues() orderedKVPair {
-	pair := orderedKVPair{
-		Keys:   make([]string, 0, len(m)),
-		Values: make([]int, 0, len(m)),
-	}
-	for k, v := range m {
-		pair.Keys = append(pair.Keys, k)
-		pair.Values = append(pair.Values, v)
-	}
-	sort.Sort(&pair)
-	return pair
 }
 
 // PlaylistsHandler provides data used to drive visualisations.
@@ -109,7 +36,7 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 	// fetch playlist data for given playlist ID
 	playlistData, err := a.spotifyReq.GetPlaylist(vars["id"])
 	if err != nil {
-		log.Printf("failed to fetch playlist data: %s", err)
+		a.logger.Error("failed to fetch playlist data", zap.Error(err))
 		if errors.Is(err, spotify.ErrNotFound) {
 			w.WriteHeader(http.StatusNotFound)
 			return
@@ -118,9 +45,9 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var popularity statsGroup
-	explicitMapping := newStatsMapping(2)
-	releaseDatesMapping := newStatsMapping(10)
+	var popularity stats.Group
+	explicitMapping := stats.NewMapping(2)
+	releaseDatesMapping := stats.NewMapping(10)
 	trackIDsList := make([]string, 0, len(playlistData.Tracks.TrackItems))
 	trackIDLookup := make(map[string]spotify.TrackDetails, len(playlistData.Tracks.TrackItems))
 
@@ -128,17 +55,17 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 		trackIDsList = append(trackIDsList, track.TrackDetails.ID)
 		trackIDLookup[track.TrackDetails.ID] = track.TrackDetails
 		// aggregate track popularity
-		popularity.push(track.TrackDetails.ID, track.TrackDetails.Popularity)
+		popularity.Push(track.TrackDetails.ID, track.TrackDetails.Popularity)
 		// aggregate by release year
 		releaseDate, err := time.Parse("2006-01-02", track.TrackDetails.Album.ReleaseDate)
 		if err == nil {
-			releaseDatesMapping.push(strconv.Itoa(releaseDate.Year()))
+			releaseDatesMapping.Push(strconv.Itoa(releaseDate.Year()))
 		}
 
 		if track.TrackDetails.Explicit {
-			explicitMapping.push("explicit")
+			explicitMapping.Push("explicit")
 		} else {
-			explicitMapping.push("non-explicit")
+			explicitMapping.Push("non-explicit")
 		}
 	}
 
@@ -146,36 +73,36 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 	audioFeatures, err := a.spotifyReq.GetAudioFeatures(trackIDsList)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		log.Printf("failed to fetch audio feature data: %s", err)
+		a.logger.Error("failed to fetch audio feature data", zap.Error(err))
 		return
 	}
 
 	// aggregate track data for each stat
 	var (
-		energy           statsGroup
-		danceability     statsGroup
-		valance          statsGroup
-		acousticness     statsGroup
-		speechiness      statsGroup
-		instrumentalness statsGroup
+		energy           stats.Group
+		danceability     stats.Group
+		valance          stats.Group
+		acousticness     stats.Group
+		speechiness      stats.Group
+		instrumentalness stats.Group
 	)
 	for _, feature := range audioFeatures {
-		energy.push(feature.ID, feature.Energy)
-		danceability.push(feature.ID, feature.Danceability)
-		valance.push(feature.ID, feature.Valence)
-		acousticness.push(feature.ID, feature.Acousticness)
-		speechiness.push(feature.ID, feature.Speechiness)
-		instrumentalness.push(feature.ID, feature.Instrumentalness)
+		energy.Push(feature.ID, feature.Energy)
+		danceability.Push(feature.ID, feature.Danceability)
+		valance.Push(feature.ID, feature.Valence)
+		acousticness.Push(feature.ID, feature.Acousticness)
+		speechiness.Push(feature.ID, feature.Speechiness)
+		instrumentalness.Push(feature.ID, feature.Instrumentalness)
 	}
 
 	// perform final calculations on each stat and lookup track names
-	popularity.calc(trackIDLookup)
-	energy.calc(trackIDLookup)
-	danceability.calc(trackIDLookup)
-	valance.calc(trackIDLookup)
-	acousticness.calc(trackIDLookup)
-	speechiness.calc(trackIDLookup)
-	instrumentalness.calc(trackIDLookup)
+	popularity.Calc(trackIDLookup)
+	energy.Calc(trackIDLookup)
+	danceability.Calc(trackIDLookup)
+	valance.Calc(trackIDLookup)
+	acousticness.Calc(trackIDLookup)
+	speechiness.Calc(trackIDLookup)
+	instrumentalness.Calc(trackIDLookup)
 
 	// generate final output payload
 	stats := map[string]interface{}{
@@ -192,14 +119,14 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 				"instrumentalness": instrumentalness,
 			},
 			"explicitness":  explicitMapping,
-			"release_dates": releaseDatesMapping.orderedLabelsAndValues(),
+			"release_dates": releaseDatesMapping.OrderedLabelsAndValues(),
 		},
 	}
 
 	respBody, err := json.Marshal(stats)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		log.Printf("failed to JSON marshal playlist API data: %s", err)
+		a.logger.Error("failed to JSON marshal playlist API data", zap.Error(err))
 		return
 	}
 
