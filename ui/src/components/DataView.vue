@@ -19,39 +19,51 @@
       <v-row>
         <v-col cols="6">
           <ExplicitChart :explicitnessData="explicitnessStats"/>
+        </v-col>
+
+        <v-col cols="6">
           <ReleaseDateChart :releaseDateData="releaseDateStats"/>
         </v-col>
+
+        <div v-if="playlistName">
+          <v-col cols="12">
+            <h3>On average, your playlist is {{ generationDetails["age"] }} years old (born {{
+                generationDetails["year"]
+              }})! This makes it a member of the
+              {{ generationDetails["name"] }} generation
+              ({{ generationDetails["lower"] }} - {{ generationDetails["upper"] }})...</h3>
+            <p>{{ generationDetails["summary"] }}</p>
+
+            <h3>{{ playlistName }} by {{ playlistOwner }}</h3>
+            <hr>
+
+            <!-- stats table -->
+            <v-simple-table>
+              <template v-slot:default>
+                <thead>
+                <tr class="text-left">
+                  <th>Stat</th>
+                  <th>Min</th>
+                  <th>Max</th>
+                  <th>Avg</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr
+                    v-for="(stats, statName) in rawPlaylistStats"
+                    :key="statName"
+                >
+                  <td>{{ statName }}</td>
+                  <td>{{ stats.min.name }} ({{ stats.min.value }})</td>
+                  <td>{{ stats.max.name }} ({{ stats.max.value }})</td>
+                  <td>{{ stats.avg }}</td>
+                </tr>
+                </tbody>
+              </template>
+            </v-simple-table>
+          </v-col>
+        </div>
       </v-row>
-
-      <div v-if="playlistName">
-        <h3>{{ playlistName }} by {{ playlistOwner }}</h3>
-        <hr>
-
-        <!-- stats table -->
-        <v-simple-table>
-          <template v-slot:default>
-            <thead>
-            <tr class="text-left">
-              <th>Stat</th>
-              <th>Min</th>
-              <th>Max</th>
-              <th>Avg</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr
-                v-for="(stats, statName) in rawPlaylistStats"
-                :key="statName"
-            >
-              <td>{{ statName }}</td>
-              <td>{{ stats.min.name }} ({{ stats.min.value }})</td>
-              <td>{{ stats.max.name }} ({{ stats.max.value }})</td>
-              <td>{{ stats.avg }}</td>
-            </tr>
-            </tbody>
-          </template>
-        </v-simple-table>
-      </div>
 
     </v-col>
   </v-row>
@@ -84,7 +96,8 @@ export default {
       playlistOwner: null,
       rawPlaylistStats: {},
       explicitnessStats: {},
-      releaseDateStats: {}
+      releaseDateStats: {},
+      generationDetails: {}
     }
   },
   mounted() {
@@ -107,6 +120,7 @@ export default {
             this.rawPlaylistStats = response.data["stats"]["raw"];
             this.explicitnessStats = response.data["stats"]["explicitness"];
             this.releaseDateStats = response.data["stats"]["release_dates"];
+            this.generationDetails = response.data["stats"]["generation"];
 
             this.lastPlaylistID = this.playlistID;
           })

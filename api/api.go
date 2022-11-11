@@ -34,7 +34,7 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	// fetch playlist data for given playlist ID
-	playlistData, err := a.spotifyReq.GetPlaylist(vars["id"])
+	playlistData, err := a.spotifyReq.GetPlaylist(vars["playlistID"])
 	if err != nil {
 		a.logger.Error("failed to fetch playlist data", zap.Error(err))
 		if errors.Is(err, spotify.ErrNotFound) {
@@ -45,11 +45,14 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var popularity stats.Group
-	explicitMapping := stats.NewMapping(2)
-	releaseDatesMapping := stats.NewMapping(10)
-	trackIDsList := make([]string, 0, len(playlistData.Tracks.TrackItems))
-	trackIDLookup := make(map[string]spotify.TrackDetails, len(playlistData.Tracks.TrackItems))
+	var (
+		popularity          stats.Group
+		releaseDates        stats.Group
+		explicitMapping     = stats.NewMapping(2)
+		releaseDatesMapping = stats.NewMapping(10)
+		trackIDsList        = make([]string, 0, len(playlistData.Tracks.TrackItems))
+		trackIDLookup       = make(map[string]spotify.TrackDetails, len(playlistData.Tracks.TrackItems))
+	)
 
 	for _, track := range playlistData.Tracks.TrackItems {
 		trackIDsList = append(trackIDsList, track.TrackDetails.ID)
@@ -60,6 +63,7 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 		releaseDate, err := time.Parse("2006-01-02", track.TrackDetails.Album.ReleaseDate)
 		if err == nil {
 			releaseDatesMapping.Push(strconv.Itoa(releaseDate.Year()))
+			releaseDates.Push(track.TrackDetails.ID, float64(releaseDate.Unix()))
 		}
 
 		if track.TrackDetails.Explicit {
@@ -67,6 +71,13 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 		} else {
 			explicitMapping.Push("non-explicit")
 		}
+	}
+
+	releaseDates.Calc(trackIDLookup)
+	avgDate := time.Unix(int64(releaseDates.Mean), 0)
+	generation, err := stats.GetGeneration(avgDate.Year())
+	if err != nil {
+		a.logger.Error("failed to determine playlist generation", zap.Error(err))
 	}
 
 	// bulk fetch audio feature data for each track in playlist
@@ -81,7 +92,7 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 	var (
 		energy           stats.Group
 		danceability     stats.Group
-		valance          stats.Group
+		valence          stats.Group
 		acousticness     stats.Group
 		speechiness      stats.Group
 		instrumentalness stats.Group
@@ -89,7 +100,7 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 	for _, feature := range audioFeatures {
 		energy.Push(feature.ID, feature.Energy)
 		danceability.Push(feature.ID, feature.Danceability)
-		valance.Push(feature.ID, feature.Valence)
+		valence.Push(feature.ID, feature.Valence)
 		acousticness.Push(feature.ID, feature.Acousticness)
 		speechiness.Push(feature.ID, feature.Speechiness)
 		instrumentalness.Push(feature.ID, feature.Instrumentalness)
@@ -99,7 +110,7 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 	popularity.Calc(trackIDLookup)
 	energy.Calc(trackIDLookup)
 	danceability.Calc(trackIDLookup)
-	valance.Calc(trackIDLookup)
+	valence.Calc(trackIDLookup)
 	acousticness.Calc(trackIDLookup)
 	speechiness.Calc(trackIDLookup)
 	instrumentalness.Calc(trackIDLookup)
@@ -113,13 +124,15 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 				"popularity":       popularity,
 				"energy":           energy,
 				"danceability":     danceability,
-				"valance":          valance,
+				"valence":          valence,
 				"acousticness":     acousticness,
 				"speechiness":      speechiness,
 				"instrumentalness": instrumentalness,
+				"releaseDates":     releaseDates,
 			},
 			"explicitness":  explicitMapping,
 			"release_dates": releaseDatesMapping.OrderedLabelsAndValues(),
+			"generation":    generation,
 		},
 	}
 

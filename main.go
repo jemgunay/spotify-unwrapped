@@ -32,7 +32,7 @@ func main() {
 	handlers := api.New(logger, spotifyReq)
 	r := mux.NewRouter()
 	r.Use(allowCORSMiddleware)
-	r.HandleFunc("/api/v1/playlists/{id}", handlers.PlaylistsHandler).Methods(http.MethodGet)
+	r.HandleFunc("/api/v1/playlists/{playlistID}", handlers.PlaylistsHandler).Methods(http.MethodGet)
 
 	// start HTTP server
 	logger.Info("starting HTTP server", zap.Int("port", conf.Port))
