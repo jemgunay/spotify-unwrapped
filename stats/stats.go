@@ -59,9 +59,33 @@ func (m Mapping) Push(key string) {
 	m[key] = m[key] + 1
 }
 
+type MappingOpt func(*OrderedKVPair)
+
+type SortBy int
+
+const (
+	SortKey SortBy = iota
+	SortValue
+)
+
+func WithSort(sortBy SortBy, sortDesc bool) MappingOpt {
+	return func(pair *OrderedKVPair) {
+		pair.sortBy = sortBy
+		pair.sortDesc = sortDesc
+		sort.Sort(pair)
+	}
+}
+
+func WithTruncate(size int) MappingOpt {
+	return func(pair *OrderedKVPair) {
+		pair.Keys = pair.Keys[:size]
+		pair.Values = pair.Values[:size]
+	}
+}
+
 // OrderedLabelsAndValues converts a Mapping to an OrderedKVPair for use with ChartJS.
-func (m Mapping) OrderedLabelsAndValues() OrderedKVPair {
-	pair := OrderedKVPair{
+func (m Mapping) OrderedLabelsAndValues(opts ...MappingOpt) *OrderedKVPair {
+	pair := &OrderedKVPair{
 		Keys:   make([]string, 0, len(m)),
 		Values: make([]int, 0, len(m)),
 	}
@@ -69,15 +93,19 @@ func (m Mapping) OrderedLabelsAndValues() OrderedKVPair {
 		pair.Keys = append(pair.Keys, k)
 		pair.Values = append(pair.Values, v)
 	}
-	sort.Sort(&pair)
+	for _, opt := range opts {
+		opt(pair)
+	}
 	return pair
 }
 
 // OrderedKVPair provides two lists of keys and their corresponding values, ordered by key. This format is required by
 // ChartJS. It implements sort.Interface.
 type OrderedKVPair struct {
-	Keys   []string `json:"keys"`
-	Values []int    `json:"values"`
+	Keys     []string `json:"keys"`
+	Values   []int    `json:"values"`
+	sortBy   SortBy
+	sortDesc bool
 }
 
 var _ sort.Interface = (*OrderedKVPair)(nil)
@@ -89,7 +117,13 @@ func (p *OrderedKVPair) Len() int {
 
 // Less orders the provided elements.
 func (p *OrderedKVPair) Less(i int, j int) bool {
-	return p.Keys[i] < p.Keys[j]
+	if p.sortDesc {
+		i, j = j, i
+	}
+	if p.sortBy == SortKey {
+		return p.Keys[i] < p.Keys[j]
+	}
+	return p.Values[i] < p.Values[j]
 }
 
 // Swap swaps two key/value pairs.

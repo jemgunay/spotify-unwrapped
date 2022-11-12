@@ -5,7 +5,9 @@ import (
 	"errors"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
+	"unicode"
 
 	"github.com/gorilla/mux"
 	"github.com/jemgunay/spotify-unwrapped/config"
@@ -50,6 +52,7 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 		releaseDates        stats.Group
 		explicitMapping     = stats.NewMapping(2)
 		releaseDatesMapping = stats.NewMapping(10)
+		titleWordMapping    = stats.NewMapping(100)
 		trackIDsList        = make([]string, 0, len(playlistData.Tracks.TrackItems))
 		trackIDLookup       = make(map[string]spotify.TrackDetails, len(playlistData.Tracks.TrackItems))
 	)
@@ -70,6 +73,17 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 			explicitMapping.Push("explicit")
 		} else {
 			explicitMapping.Push("non-explicit")
+		}
+
+		for _, word := range strings.Split(track.TrackDetails.Name, " ") {
+			trimmed := strings.TrimSpace(word)
+			if len(trimmed) == 1 {
+				char := rune(trimmed[0])
+				if unicode.IsSymbol(char) || unicode.IsPunct(char) || unicode.IsNumber(char) {
+					continue
+				}
+			}
+			titleWordMapping.Push(trimmed)
 		}
 	}
 
@@ -116,7 +130,7 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 	instrumentalness.Calc(trackIDLookup)
 
 	// generate final output payload
-	stats := map[string]interface{}{
+	statsPayload := map[string]interface{}{
 		"playlist_name": playlistData.Name,
 		"owner_name":    playlistData.Owner.DisplayName,
 		"stats": map[string]interface{}{
@@ -130,13 +144,14 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 				"instrumentalness": instrumentalness,
 				"releaseDates":     releaseDates,
 			},
-			"explicitness":  explicitMapping,
-			"release_dates": releaseDatesMapping.OrderedLabelsAndValues(),
-			"generation":    generation,
+			"explicitness":    explicitMapping,
+			"release_dates":   releaseDatesMapping.OrderedLabelsAndValues(stats.WithSort(stats.SortKey, false)),
+			"generation":      generation,
+			"top_title_words": titleWordMapping.OrderedLabelsAndValues(stats.WithSort(stats.SortValue, true), stats.WithTruncate(20)),
 		},
 	}
 
-	respBody, err := json.Marshal(stats)
+	respBody, err := json.Marshal(statsPayload)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		a.logger.Error("failed to JSON marshal playlist API data", zap.Error(err))

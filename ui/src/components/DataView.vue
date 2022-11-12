@@ -27,6 +27,7 @@
 
         <div v-if="playlistName">
           <v-col cols="12">
+
             <h3>On average, your playlist is {{ generationDetails["age"] }} years old (born {{
                 generationDetails["year"]
               }})! This makes it a member of the
@@ -37,7 +38,7 @@
             <h3>{{ playlistName }} by {{ playlistOwner }}</h3>
             <hr>
 
-            <!-- stats table -->
+            <!-- raw stats table -->
             <v-simple-table>
               <template v-slot:default>
                 <thead>
@@ -57,6 +58,31 @@
                   <td>{{ stats.min.name }} ({{ stats.min.value }})</td>
                   <td>{{ stats.max.name }} ({{ stats.max.value }})</td>
                   <td>{{ stats.avg }}</td>
+                </tr>
+                </tbody>
+              </template>
+            </v-simple-table>
+          </v-col>
+
+          <hr>
+
+          <v-col cols="4">
+            <!-- title word count stats table -->
+            <v-simple-table dense>
+              <template v-slot:default>
+                <thead>
+                <tr class="text-left">
+                  <th>Word</th>
+                  <th>Count</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr
+                    v-for="(key, index) in topTitleWords['keys']"
+                    :key="key"
+                >
+                  <td>{{ key }}</td>
+                  <td>{{ topTitleWords['values'][index] }}</td>
                 </tr>
                 </tbody>
               </template>
@@ -97,7 +123,8 @@ export default {
       rawPlaylistStats: {},
       explicitnessStats: {},
       releaseDateStats: {},
-      generationDetails: {}
+      generationDetails: {},
+      topTitleWords: {}
     }
   },
   mounted() {
@@ -121,6 +148,7 @@ export default {
             this.explicitnessStats = response.data["stats"]["explicitness"];
             this.releaseDateStats = response.data["stats"]["release_dates"];
             this.generationDetails = response.data["stats"]["generation"];
+            this.topTitleWords = response.data["stats"]["top_title_words"];
 
             this.lastPlaylistID = this.playlistID;
           })

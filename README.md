@@ -18,7 +18,12 @@ A web app for visualising Spotify playlist data.
 
 ## TODO
 
-* Key/tempo 
+* Key/tempo vs valence 
 * Get most/least energetic tune in a playlist 
 * Oldest/newest track in a playlist
-* Pie chart of genre frequency in a playlist
+* Pie chart of artist genre frequency in a playlist
+* Languages/country
+* Words in title
+* Track duration
+* Loudness
+* Popularity & followers
