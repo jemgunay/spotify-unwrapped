@@ -17,82 +17,90 @@
         <p>Processing playlist {{ playlistID }}...</p>
       </div>
 
-      <v-row>
-        <v-col cols="6">
-          <ExplicitChart :explicitnessData="explicitnessStats"/>
+      <v-row v-if="playlistName">
+
+        <v-col cols="12">
+          <!-- playlist/owner title -->
+          <h1>{{ playlistName }} by {{ playlistOwner }}</h1>
+          <hr>
         </v-col>
 
         <v-col cols="6">
+          <!-- release date chart -->
           <ReleaseDateChart :releaseDateData="releaseDateStats"/>
         </v-col>
 
-        <div v-if="playlistName">
-          <v-col cols="12">
+        <v-col cols="6">
+          <!-- generations text -->
+          <h3>On average, your playlist is {{ generationDetails["age"] }} years old (born {{
+              generationDetails["year"]
+            }})! This makes it a member of the
+            {{ generationDetails["name"] }} generation
+            ({{ generationDetails["lower"] }} - {{ generationDetails["upper"] }})...</h3>
+          <p>{{ generationDetails["summary"] }}</p>
+        </v-col>
 
-            <h3>On average, your playlist is {{ generationDetails["age"] }} years old (born {{
-                generationDetails["year"]
-              }})! This makes it a member of the
-              {{ generationDetails["name"] }} generation
-              ({{ generationDetails["lower"] }} - {{ generationDetails["upper"] }})...</h3>
-            <p>{{ generationDetails["summary"] }}</p>
+        <v-col cols="12"><hr></v-col>
 
-            <h3>{{ playlistName }} by {{ playlistOwner }}</h3>
+        <v-col cols="5">
+          <!-- title word count stats table -->
+          <h3>Most Common Track Title Words</h3>
 
-            <hr>
+          <v-simple-table dense>
+            <template v-slot:default>
+              <thead>
+              <tr class="text-left">
+                <th>Word</th>
+                <th>Count</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr
+                  v-for="(key, index) in topTitleWords['keys']"
+                  :key="key"
+              >
+                <td>{{ key }}</td>
+                <td>{{ topTitleWords['values'][index] }}</td>
+              </tr>
+              </tbody>
+            </template>
+          </v-simple-table>
+        </v-col>
 
-            <!-- raw stats table -->
-            <v-simple-table>
-              <template v-slot:default>
-                <thead>
-                <tr class="text-left">
-                  <th>Stat</th>
-                  <th>Min</th>
-                  <th>Max</th>
-                  <th>Avg</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr
-                    v-for="(stats, statName) in rawPlaylistStats"
-                    :key="statName"
-                >
-                  <td>{{ statName }}</td>
-                  <td>{{ stats.min.name }} ({{ stats.min.value }})</td>
-                  <td>{{ stats.max.name }} ({{ stats.max.value }})</td>
-                  <td>{{ stats.avg }}</td>
-                </tr>
-                </tbody>
-              </template>
-            </v-simple-table>
-          </v-col>
+        <v-col cols="7">
+          <ExplicitChart :explicitnessData="explicitnessStats"/>
+        </v-col>
 
-          <hr>
+        <v-col cols="12"><hr></v-col>
 
-          <v-col cols="4">
-            <!-- title word count stats table -->
-            <v-simple-table dense>
-              <template v-slot:default>
-                <thead>
-                <tr class="text-left">
-                  <th>Word</th>
-                  <th>Count</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr
-                    v-for="(key, index) in topTitleWords['keys']"
-                    :key="key"
-                >
-                  <td>{{ key }}</td>
-                  <td>{{ topTitleWords['values'][index] }}</td>
-                </tr>
-                </tbody>
-              </template>
-            </v-simple-table>
-          </v-col>
-        </div>
+        <v-col cols="12">
+          <!-- raw stats table -->
+          <v-simple-table>
+            <template v-slot:default>
+              <thead>
+              <tr class="text-left">
+                <th>Stat</th>
+                <th>Min</th>
+                <th>Max</th>
+                <th>Avg</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr
+                  v-for="(stats, statName) in rawPlaylistStats"
+                  :key="statName"
+              >
+                <td>{{ statName }}</td>
+                <td>{{ stats.min.name }} ({{ stats.min.value }})</td>
+                <td>{{ stats.max.name }} ({{ stats.max.value }})</td>
+                <td>{{ stats.avg }}</td>
+              </tr>
+              </tbody>
+            </template>
+          </v-simple-table>
+        </v-col>
+
       </v-row>
-
     </v-col>
   </v-row>
 </template>
