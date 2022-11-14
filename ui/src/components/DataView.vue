@@ -4,9 +4,10 @@
       <v-text-field
           label="Playlist ID"
           v-model="playlistID"
-          :rules="playlistIDRules"
+          :rules="playlistInputRules"
           :loading="loading"
-          @input="getPlaylistData"></v-text-field>
+          @input="getPlaylistData">
+      </v-text-field>
     </v-col>
 
     <v-col cols="12">
@@ -36,6 +37,7 @@
             <p>{{ generationDetails["summary"] }}</p>
 
             <h3>{{ playlistName }} by {{ playlistOwner }}</h3>
+
             <hr>
 
             <!-- raw stats table -->
@@ -114,9 +116,9 @@ export default {
 
       playlistID: "1AXy6ag2d0ag8DEdOE7kWm",
       lastPlaylistID: null,
-      playlistIDRules: [
+      playlistInputRules: [
         value => !!value || 'Required.',
-        value => (value || '').length === 22 || 'Invalid playlist ID.',
+        value => this.isPlaylistValid(value),
       ],
       playlistName: null,
       playlistOwner: null,
@@ -134,9 +136,12 @@ export default {
     getPlaylistData() {
       this.dataError = null;
 
-      // prevent fetching the same data for the previously searched playlist
+      if (this.isPlaylistValid(this.playlistID) !== true) {
+        return;
+      }
+
+      // if the playlist ID hasn't changed, then we don't want to request the same data
       if (this.playlistID === this.lastPlaylistID) return;
-      if ((this.playlistID || '').length !== 22) return;
 
       this.loading = true;
       axios
@@ -169,6 +174,23 @@ export default {
           .finally(() => {
             this.loading = false;
           })
+    },
+    isPlaylistValid(value) {
+      const playlistIDLength = 22;
+      if ((value || '').length < playlistIDLength) return "Playlist ID too short.";
+      if ((value || '').length === playlistIDLength) {
+        this.playlistID = value;
+        return true;
+      }
+
+      // attempt to process playlist URL into raw ID
+      let segments = new URL(value).pathname.split('/');
+      value = segments.pop() || segments.pop();
+
+      // validate length represents a playlist ID
+      if ((value || '').length !== playlistIDLength) return "Invalid Spotify playlist URL provided.";
+      this.playlistID = value;
+      return true;
     }
   },
 }

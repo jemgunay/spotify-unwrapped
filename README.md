@@ -18,6 +18,9 @@ A web app for visualising Spotify playlist data.
 
 ## TODO
 
+* Implement Spotify auth store (so I don't need to restart)
+* Upper cap on playlist size, i.e. bail after 2k tracks?
+* Persist playlist in URL (and cache result for a period of time server-side?)
 * Key/tempo vs valence 
 * Get most/least energetic tune in a playlist 
 * Oldest/newest track in a playlist
