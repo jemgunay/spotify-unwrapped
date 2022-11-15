@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+// Generation represents a generation.
 type Generation struct {
 	Name    string `json:"name"`
 	Lower   int    `json:"lower"`
@@ -14,6 +15,7 @@ type Generation struct {
 	Age     int    `json:"age"`
 }
 
+// GetGeneration gets generation details for the given year.
 func GetGeneration(year int) (Generation, error) {
 	if year < generations[0].Lower {
 		return Generation{}, errors.New("year too low to identify generation")
@@ -30,46 +32,46 @@ func GetGeneration(year int) (Generation, error) {
 
 var generations = []Generation{
 	{
-		Name:    "The Lost Generation",
+		Name:    "the Lost Generation",
 		Lower:   1883,
 		Upper:   1900,
-		Summary: `The Lost Generation, also known as the "Generation of 1914" in Europe, is a term originating from Gertrude Stein to describe those who fought in World War I. The Lost Generation is defined as the cohort born from 1883 to 1900 who came of age during World War I and the Roaring Twenties.`,
+		Summary: `The Lost Generation, also known as the "Generation of 1914" in Europe, is a term originating from Gertrude Stein to describe those who fought in World War I and who came of age during the Roaring Twenties.`,
 	},
 	{
-		Name:    "The Greatest Generation",
+		Name:    "the Greatest Generation",
 		Lower:   1901,
 		Upper:   1927,
-		Summary: `The Greatest Generation, also known as the "G.I. Generation", includes the veterans who fought in World War II. They were born from 1901 to 1927; older G.I.s (or the Interbellum Generation) came of age during the Roaring Twenties, while younger G.I.s came of age during the Great Depression and World War II. Journalist Tom Brokaw wrote about American members of this cohort in his book The Greatest Generation, which popularized the term.`,
+		Summary: `The Greatest Generation, also known as the "G.I. Generation", includes the veterans who fought in World War II. Older G.I.s (or the Interbellum Generation) came of age during the Roaring Twenties, while younger G.I.s came of age during the Great Depression and World War II. Journalist Tom Brokaw wrote about American members of this cohort in his book The Greatest Generation, which popularized the term.`,
 	},
 	{
-		Name:    "The Silent Generation",
+		Name:    "the Silent Generation",
 		Lower:   1928,
 		Upper:   1945,
-		Summary: `The Silent Generation, also known as the "Lucky Few", is the cohort who came of age in the pre–World War II era. They were born from 1928 to 1945. In the U.S., this group includes most of those who may have fought the Korean War and many of those who may have fought during the Vietnam War.`,
+		Summary: `The Silent Generation, also known as the "Lucky Few", is the cohort who came of age in the pre–World War II era. In the U.S., this group includes most of those who may have fought the Korean War and many of those who may have fought during the Vietnam War.`,
 	},
 	{
-		Name:    "Baby Boomers",
+		Name:    "the Baby Boomers",
 		Lower:   1946,
 		Upper:   1964,
-		Summary: `Baby Boomers are the people born following World War II from 1946 to 1964. Increased birth rates were observed during the post–World War II baby boom, making them a relatively large demographic cohort. In the U.S., many older boomers may have fought in the Vietnam War or participated in the counterculture of the 1960s, while younger boomers (or Generation Jones) came of age in the "malaise" years of the 1970s.`,
+		Summary: `Baby Boomers are the people born following World War II. Increased birth rates were observed during the post–World War II baby boom, making them a relatively large demographic cohort. In the U.S., many older boomers may have fought in the Vietnam War or participated in the counterculture of the 1960s, while younger boomers (or Generation Jones) came of age in the "malaise" years of the 1970s.`,
 	},
 	{
 		Name:    "Generation X",
 		Lower:   1965,
 		Upper:   1980,
-		Summary: `Generation X (or Gen X for short) is the cohort following the baby boomers. The generation is generally defined as people born between 1965 and 1980. The term has also been used in different times and places for a number of different subcultures or countercultures since the 1950s. In the U.S., some called Xers the "baby bust" generation because of a drop in birth rates following the baby boom.`,
+		Summary: `Generation X (or Gen X for short) is the cohort following the baby boomers. The term has also been used in different times and places for a number of different subcultures or countercultures since the 1950s. In the U.S., some called Xers the "baby bust" generation because of a drop in birth rates following the baby boom.`,
 	},
 	{
-		Name:    "Millennials",
+		Name:    "the Millennials",
 		Lower:   1981,
 		Upper:   1996,
-		Summary: `Millennials, also known as Generation Y (or Gen Y for short), are the generation following Generation X who grew up around the turn of the 3rd millennium. This generation is typically defined as those born from 1981 to 1996. The Pew Research Center reported that Millennials surpassed the Baby Boomers in U.S. numbers in 2019, with an estimated 71.6 million Boomers and 72.1 million Millennials.`,
+		Summary: `Millennials, also known as Generation Y (or Gen Y for short), are the generation following Generation X who grew up around the turn of the 3rd millennium. The Pew Research Center reported that Millennials surpassed the Baby Boomers in U.S. numbers in 2019, with an estimated 71.6 million Boomers and 72.1 million Millennials.`,
 	},
 	{
 		Name:    "Generation Z",
 		Lower:   1997,
 		Upper:   2012,
-		Summary: `Generation Z (or Gen Z for short and colloquially as "Zoomers"), are the people succeeding the Millennials. Pew Research Center describes Generation Z as spanning from 1997 to 2012. Both the United States Library of Congress and Statistics Canada have cited Pew's definition of 1997-2012 for Generation Z.`,
+		Summary: `Generation Z (or Gen Z for short and colloquially as "Zoomers"), are the people succeeding the Millennials. Both the United States Library of Congress and Statistics Canada have cited Pew's definition of 1997-2012 for Generation Z.`,
 	},
 	{
 		Name:    "Generation Alpha",

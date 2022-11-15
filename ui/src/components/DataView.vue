@@ -12,17 +12,21 @@
 
     <v-col cols="12">
       <p v-if="dataError">{{ dataError }}</p>
-
-      <div v-else-if="loading">
-        <p>Processing playlist {{ playlistID }}...</p>
-      </div>
+      <p v-else-if="loading">Unwrapping playlist <strong>{{ playlistID }}</strong>...</p>
 
       <v-row v-if="playlistName">
 
         <v-col cols="12">
+          <v-divider></v-divider>
+        </v-col>
+
+        <v-col cols="12">
           <!-- playlist/owner title -->
           <h1>{{ playlistName }} by {{ playlistOwner }}</h1>
-          <hr>
+        </v-col>
+
+        <v-col cols="12">
+          <v-divider></v-divider>
         </v-col>
 
         <v-col cols="6">
@@ -32,19 +36,34 @@
 
         <v-col cols="6">
           <!-- generations text -->
-          <h3>On average, your playlist is {{ generationDetails["age"] }} years old (born {{
+          <h3>Your playlist's average age is {{ generationDetails["age"] }} years old (born {{
               generationDetails["year"]
-            }})! This makes it a member of the
-            {{ generationDetails["name"] }} generation
+            }})! This makes it a member of
+            {{ generationDetails["name"] }}
             ({{ generationDetails["lower"] }} - {{ generationDetails["upper"] }})...</h3>
           <p>{{ generationDetails["summary"] }}</p>
+
+          <v-list-item three-line>
+            <v-list-item-content>
+              <v-list-item-title>Oldest Track</v-list-item-title>
+              <v-list-item-subtitle>{{ rawPlaylistStats["releaseDates"]["min"]["name"] }}</v-list-item-subtitle>
+              <v-list-item-subtitle>{{ rawPlaylistStats["releaseDates"]["min"]["date"] }}</v-list-item-subtitle>
+            </v-list-item-content>
+            <v-list-item-content>
+              <v-list-item-title>Newest Track</v-list-item-title>
+              <v-list-item-subtitle>{{ rawPlaylistStats["releaseDates"]["max"]["name"] }}</v-list-item-subtitle>
+              <v-list-item-subtitle>{{ rawPlaylistStats["releaseDates"]["max"]["date"] }}</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
         </v-col>
 
-        <v-col cols="12"><hr></v-col>
+        <v-col cols="12">
+          <v-divider></v-divider>
+        </v-col>
 
         <v-col cols="5">
           <!-- title word count stats table -->
-          <h3>Most Common Track Title Words</h3>
+          <h3>Track Title Word Occurrences</h3>
 
           <v-simple-table dense>
             <template v-slot:default>
@@ -68,10 +87,15 @@
         </v-col>
 
         <v-col cols="7">
+          <!-- explicit lyrics pie chart -->
+          <h3>Explicit vs Non-Explicit Lyrics</h3>
+
           <ExplicitChart :explicitnessData="explicitnessStats"/>
         </v-col>
 
-        <v-col cols="12"><hr></v-col>
+        <v-col cols="12">
+          <v-divider></v-divider>
+        </v-col>
 
         <v-col cols="12">
           <!-- raw stats table -->
@@ -93,7 +117,7 @@
                 <td>{{ statName }}</td>
                 <td>{{ stats.min.name }} ({{ stats.min.value }})</td>
                 <td>{{ stats.max.name }} ({{ stats.max.value }})</td>
-                <td>{{ stats.avg }}</td>
+                <td>{{ stats.avg.value }}</td>
               </tr>
               </tbody>
             </template>
@@ -137,7 +161,7 @@ export default {
       topTitleWords: {}
     }
   },
-  mounted() {
+  created() {
     this.getPlaylistData();
   },
   methods: {

@@ -2,14 +2,21 @@ package stats
 
 import (
 	"sort"
+	"time"
 
 	"github.com/jemgunay/spotify-unwrapped/spotify"
 )
 
 type detail struct {
 	id    string
-	Name  string  `json:"name"`
-	Value float64 `json:"value"`
+	Name  string  `json:"name,omitempty"`
+	Value float64 `json:"value,omitempty"`
+	Date  string  `json:"date,omitempty"`
+}
+
+// DateYear determines the year from the date value.
+func (d detail) DateYear() int {
+	return time.Unix(int64(d.Value), 0).Year()
 }
 
 // Group is used to calculate the min, max and average values for a dataset.
@@ -18,32 +25,51 @@ type Group struct {
 	Max   detail `json:"max"`
 	sum   float64
 	count float64
-	Mean  float64 `json:"avg"`
+	Mean  detail `json:"avg"`
 }
 
 // Push pushes a value and its key into the Group. Call Calc to finalise the Group statistics.
-func (s *Group) Push(id string, val float64) {
-	s.sum += val
-	s.count++
+func (g *Group) Push(id string, val float64) {
+	g.sum += val
+	g.count++
 
+	d := detail{id: id, Value: val}
 	switch {
-	case s.Min.id == "":
-		s.Min = detail{id: id, Value: val}
-		s.Max = detail{id: id, Value: val}
-	case val > s.Max.Value:
-		s.Max = detail{id: id, Value: val}
-	case val < s.Min.Value:
-		s.Min = detail{id: id, Value: val}
+	case g.Min.id == "":
+		g.Min, g.Max = d, d
+	case val > g.Max.Value:
+		g.Max = d
+	case val < g.Min.Value:
+		g.Min = d
 	}
 }
 
 // Calc calculates the final statistics for the Group; to be called once all values have bene Pushed.
-func (s *Group) Calc(lookup map[string]spotify.TrackDetails) {
-	minTrack := lookup[s.Min.id]
-	s.Min.Name = minTrack.GetTrackString()
-	maxTrack := lookup[s.Max.id]
-	s.Max.Name = maxTrack.GetTrackString()
-	s.Mean = s.sum / s.count
+func (g *Group) Calc(lookup map[string]spotify.TrackDetails) {
+	minTrack := lookup[g.Min.id]
+	g.Min.Name = minTrack.GetTrackString()
+	maxTrack := lookup[g.Max.id]
+	g.Max.Name = maxTrack.GetTrackString()
+	if g.count > 0 {
+		g.Mean.Value = g.sum / g.count
+	}
+}
+
+func (g *Group) CalcDate(lookup map[string]spotify.TrackDetails) {
+	minTrack := lookup[g.Min.id]
+	g.Min.Name = minTrack.GetTrackString()
+	g.Min.Date = unixToDate(g.Min.Value)
+	maxTrack := lookup[g.Max.id]
+	g.Max.Name = maxTrack.GetTrackString()
+	g.Max.Date = unixToDate(g.Max.Value)
+	if g.count > 0 {
+		g.Mean.Value = g.sum / g.count
+		g.Mean.Date = unixToDate(g.Mean.Value)
+	}
+}
+
+func unixToDate(val float64) string {
+	return time.Unix(int64(val), 0).Format("02-01-2006")
 }
 
 // Mapping maps a key to a count of the occurrences of that key.

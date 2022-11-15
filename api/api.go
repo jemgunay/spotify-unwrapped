@@ -87,9 +87,8 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	releaseDates.Calc(trackIDLookup)
-	avgDate := time.Unix(int64(releaseDates.Mean), 0)
-	generation, err := stats.GetGeneration(avgDate.Year())
+	releaseDates.CalcDate(trackIDLookup)
+	generation, err := stats.GetGeneration(releaseDates.Mean.DateYear())
 	if err != nil {
 		a.logger.Error("failed to determine playlist generation", zap.Error(err))
 	}
