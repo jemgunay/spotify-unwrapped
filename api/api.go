@@ -75,15 +75,24 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 			explicitMapping.Push("non-explicit")
 		}
 
+		// count unique sentence title words
 		for _, word := range strings.Split(track.TrackDetails.Name, " ") {
 			trimmed := strings.TrimSpace(word)
-			if len(trimmed) == 1 {
-				char := rune(trimmed[0])
+			runes := []rune(trimmed)
+			switch len(trimmed) {
+			case 0:
+				continue
+			case 1:
+				char := runes[0]
 				if unicode.IsSymbol(char) || unicode.IsPunct(char) || unicode.IsNumber(char) {
 					continue
 				}
+				titleWordMapping.Push(trimmed)
+				continue
 			}
-			titleWordMapping.Push(trimmed)
+
+			runes[0] = unicode.ToUpper(runes[0])
+			titleWordMapping.Push(string(runes))
 		}
 	}
 
@@ -146,7 +155,7 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 			"explicitness":    explicitMapping,
 			"release_dates":   releaseDatesMapping.OrderedLabelsAndValues(stats.WithSort(stats.SortKey, false)),
 			"generation":      generation,
-			"top_title_words": titleWordMapping.OrderedLabelsAndValues(stats.WithSort(stats.SortValue, true), stats.WithTruncate(20)),
+			"top_title_words": titleWordMapping.OrderedLabelsAndValues(stats.WithSort(stats.SortValue, true), stats.WithTruncate(30)),
 		},
 	}
 

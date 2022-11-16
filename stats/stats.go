@@ -9,8 +9,8 @@ import (
 
 type detail struct {
 	id    string
-	Name  string  `json:"name,omitempty"`
-	Value float64 `json:"value,omitempty"`
+	Name  string  `json:"name"`
+	Value float64 `json:"value"`
 	Date  string  `json:"date,omitempty"`
 }
 
@@ -47,8 +47,8 @@ func (g *Group) Push(id string, val float64) {
 // Calc calculates the final statistics for the Group; to be called once all values have bene Pushed.
 func (g *Group) Calc(lookup map[string]spotify.TrackDetails) {
 	minTrack := lookup[g.Min.id]
-	g.Min.Name = minTrack.GetTrackString()
 	maxTrack := lookup[g.Max.id]
+	g.Min.Name = minTrack.GetTrackString()
 	g.Max.Name = maxTrack.GetTrackString()
 	if g.count > 0 {
 		g.Mean.Value = g.sum / g.count
@@ -57,10 +57,10 @@ func (g *Group) Calc(lookup map[string]spotify.TrackDetails) {
 
 func (g *Group) CalcDate(lookup map[string]spotify.TrackDetails) {
 	minTrack := lookup[g.Min.id]
-	g.Min.Name = minTrack.GetTrackString()
-	g.Min.Date = unixToDate(g.Min.Value)
 	maxTrack := lookup[g.Max.id]
+	g.Min.Name = minTrack.GetTrackString()
 	g.Max.Name = maxTrack.GetTrackString()
+	g.Min.Date = unixToDate(g.Min.Value)
 	g.Max.Date = unixToDate(g.Max.Value)
 	if g.count > 0 {
 		g.Mean.Value = g.sum / g.count
@@ -69,7 +69,7 @@ func (g *Group) CalcDate(lookup map[string]spotify.TrackDetails) {
 }
 
 func unixToDate(val float64) string {
-	return time.Unix(int64(val), 0).Format("02-01-2006")
+	return time.Unix(int64(val), 0).Format("02/01/2006")
 }
 
 // Mapping maps a key to a count of the occurrences of that key.
@@ -85,8 +85,10 @@ func (m Mapping) Push(key string) {
 	m[key] = m[key] + 1
 }
 
+// MappingOpt defines operations to be performed during Mapping.OrderedLabelsAndValues calls.
 type MappingOpt func(*OrderedKVPair)
 
+// SortBy defines the OrderedKVPair sort types.
 type SortBy int
 
 const (
@@ -94,6 +96,7 @@ const (
 	SortValue
 )
 
+// WithSort sorts OrderedKVPair by the provided sort type.
 func WithSort(sortBy SortBy, sortDesc bool) MappingOpt {
 	return func(pair *OrderedKVPair) {
 		pair.sortBy = sortBy
@@ -102,8 +105,12 @@ func WithSort(sortBy SortBy, sortDesc bool) MappingOpt {
 	}
 }
 
+// WithTruncate truncates the OrderedKVPair to the specified length.
 func WithTruncate(size int) MappingOpt {
 	return func(pair *OrderedKVPair) {
+		if size > len(pair.Keys) {
+			size = len(pair.Keys)
+		}
 		pair.Keys = pair.Keys[:size]
 		pair.Values = pair.Values[:size]
 	}

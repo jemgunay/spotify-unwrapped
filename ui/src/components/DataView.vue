@@ -36,12 +36,14 @@
 
         <v-col cols="6">
           <!-- generations text -->
-          <h3>Your playlist's average age is {{ generationDetails["age"] }} years old (born {{
+          <h4 class="mb-3">Your playlist's average age is {{ generationDetails["age"] }} years old (born {{
               generationDetails["year"]
             }})! This makes it a member of
             {{ generationDetails["name"] }}
-            ({{ generationDetails["lower"] }} - {{ generationDetails["upper"] }})...</h3>
+            ({{ generationDetails["lower"] }} - {{ generationDetails["upper"] }})...</h4>
           <p>{{ generationDetails["summary"] }}</p>
+
+          <v-divider></v-divider>
 
           <v-list-item three-line>
             <v-list-item-content>
@@ -49,8 +51,9 @@
               <v-list-item-subtitle>{{ rawPlaylistStats["releaseDates"]["min"]["name"] }}</v-list-item-subtitle>
               <v-list-item-subtitle>{{ rawPlaylistStats["releaseDates"]["min"]["date"] }}</v-list-item-subtitle>
             </v-list-item-content>
+
             <v-list-item-content>
-              <v-list-item-title>Newest Track</v-list-item-title>
+              <v-list-item-title>Youngest Track</v-list-item-title>
               <v-list-item-subtitle>{{ rawPlaylistStats["releaseDates"]["max"]["name"] }}</v-list-item-subtitle>
               <v-list-item-subtitle>{{ rawPlaylistStats["releaseDates"]["max"]["date"] }}</v-list-item-subtitle>
             </v-list-item-content>
@@ -61,11 +64,11 @@
           <v-divider></v-divider>
         </v-col>
 
-        <v-col cols="5">
+        <v-col cols="6">
           <!-- title word count stats table -->
-          <h3>Track Title Word Occurrences</h3>
+          <h3>Track Title Word Count</h3>
 
-          <v-simple-table dense>
+          <v-simple-table dense class="scrollable-table">
             <template v-slot:default>
               <thead>
               <tr class="text-left">
@@ -86,7 +89,7 @@
           </v-simple-table>
         </v-col>
 
-        <v-col cols="7">
+        <v-col cols="6">
           <!-- explicit lyrics pie chart -->
           <h3>Explicit vs Non-Explicit Lyrics</h3>
 
@@ -227,3 +230,10 @@ export default {
   },
 }
 </script>
+
+<style>
+.scrollable-table {
+  max-height: 60vh;
+  overflow: auto;
+}
+</style>
