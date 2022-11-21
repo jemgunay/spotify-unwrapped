@@ -130,12 +130,13 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 
 	// perform final calculations on each stat and lookup track names
 	popularity.Calc(trackIDLookup)
-	energy.Calc(trackIDLookup)
-	danceability.Calc(trackIDLookup)
-	valence.Calc(trackIDLookup)
-	acousticness.Calc(trackIDLookup)
-	speechiness.Calc(trackIDLookup)
-	instrumentalness.Calc(trackIDLookup)
+	toPercentage := stats.WithMultiplier(100)
+	energy.Calc(trackIDLookup, toPercentage)
+	danceability.Calc(trackIDLookup, toPercentage)
+	valence.Calc(trackIDLookup, toPercentage)
+	acousticness.Calc(trackIDLookup, toPercentage)
+	speechiness.Calc(trackIDLookup, toPercentage)
+	instrumentalness.Calc(trackIDLookup, toPercentage)
 
 	// generate final output payload
 	statsPayload := map[string]interface{}{
@@ -152,10 +153,15 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 				"instrumentalness": instrumentalness,
 				"releaseDates":     releaseDates,
 			},
-			"explicitness":    explicitMapping,
-			"release_dates":   releaseDatesMapping.OrderedLabelsAndValues(stats.WithSort(stats.SortKey, false)),
-			"generation":      generation,
-			"top_title_words": titleWordMapping.OrderedLabelsAndValues(stats.WithSort(stats.SortValue, true), stats.WithTruncate(30)),
+			"explicitness": explicitMapping,
+			"release_dates": releaseDatesMapping.OrderedLabelsAndValues(
+				stats.WithSort(stats.SortKey, false),
+			),
+			"generation": generation,
+			"top_title_words": titleWordMapping.OrderedLabelsAndValues(
+				stats.WithSort(stats.SortValue, true),
+				stats.WithTruncate(30),
+			),
 		},
 	}
 

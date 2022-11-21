@@ -1,22 +1,25 @@
 <template>
   <v-app>
-    <NavBar/>
-
     <v-main>
+      <Header/>
       <DataView/>
     </v-main>
   </v-app>
 </template>
 
 <script>
-import NavBar from "./components/NavBar";
+import Header from "./components/Header";
 import DataView from "./components/DataView";
 
 export default {
   name: 'App',
   components: {
-    NavBar,
+    Header,
     DataView,
   }
 };
 </script>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+</style>

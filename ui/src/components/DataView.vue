@@ -1,6 +1,6 @@
 <template>
-  <v-row class="pa-10">
-    <v-col cols="4">
+  <v-row class="mx-10 mb-10">
+    <v-col md="4" sm="12">
       <v-text-field
           label="Playlist ID"
           v-model="playlistID"
@@ -10,122 +10,44 @@
       </v-text-field>
     </v-col>
 
-    <v-col cols="12">
+    <v-col sm="12">
       <p v-if="dataError">{{ dataError }}</p>
       <p v-else-if="loading">Unwrapping playlist <strong>{{ playlistID }}</strong>...</p>
+    </v-col>
 
+    <v-col sm="12">
       <v-row v-if="playlistName">
 
-        <v-col cols="12">
-          <v-divider></v-divider>
-        </v-col>
-
-        <v-col cols="12">
+        <v-col sm="12">
           <!-- playlist/owner title -->
           <h1>{{ playlistName }} by {{ playlistOwner }}</h1>
         </v-col>
 
-        <v-col cols="12">
+        <v-col sm="12">
           <v-divider></v-divider>
         </v-col>
 
-        <v-col cols="6">
-          <!-- release date chart -->
-          <ReleaseDateChart :releaseDateData="releaseDateStats"/>
-        </v-col>
+        <ReleaseDateChart :releaseDateData="releaseDateStats"/>
+        <PlaylistGeneration :rawStatsData="rawPlaylistStats" :generationDetails="generationDetails"/>
 
-        <v-col cols="6">
-          <!-- generations text -->
-          <h4 class="mb-3">Your playlist's average age is {{ generationDetails["age"] }} years old (born {{
-              generationDetails["year"]
-            }})! This makes it a member of
-            {{ generationDetails["name"] }}
-            ({{ generationDetails["lower"] }} - {{ generationDetails["upper"] }})...</h4>
-          <p>{{ generationDetails["summary"] }}</p>
-
-          <v-divider></v-divider>
-
-          <v-list-item three-line>
-            <v-list-item-content>
-              <v-list-item-title>Oldest Track</v-list-item-title>
-              <v-list-item-subtitle>{{ rawPlaylistStats["releaseDates"]["min"]["name"] }}</v-list-item-subtitle>
-              <v-list-item-subtitle>{{ rawPlaylistStats["releaseDates"]["min"]["date"] }}</v-list-item-subtitle>
-            </v-list-item-content>
-
-            <v-list-item-content>
-              <v-list-item-title>Youngest Track</v-list-item-title>
-              <v-list-item-subtitle>{{ rawPlaylistStats["releaseDates"]["max"]["name"] }}</v-list-item-subtitle>
-              <v-list-item-subtitle>{{ rawPlaylistStats["releaseDates"]["max"]["date"] }}</v-list-item-subtitle>
-            </v-list-item-content>
-          </v-list-item>
-        </v-col>
-
-        <v-col cols="12">
+        <v-col sm="12">
           <v-divider></v-divider>
         </v-col>
 
-        <v-col cols="6">
-          <!-- title word count stats table -->
-          <h3>Track Title Word Count</h3>
+        <WordCountStats :topTitleWords="topTitleWords"/>
+        <ExplicitPieChart :explicitnessData="explicitnessStats"/>
 
-          <v-simple-table dense class="scrollable-table">
-            <template v-slot:default>
-              <thead>
-              <tr class="text-left">
-                <th>Word</th>
-                <th>Count</th>
-              </tr>
-              </thead>
-              <tbody>
-              <tr
-                  v-for="(key, index) in topTitleWords['keys']"
-                  :key="key"
-              >
-                <td>{{ key }}</td>
-                <td>{{ topTitleWords['values'][index] }}</td>
-              </tr>
-              </tbody>
-            </template>
-          </v-simple-table>
-        </v-col>
-
-        <v-col cols="6">
-          <!-- explicit lyrics pie chart -->
-          <h3>Explicit vs Non-Explicit Lyrics</h3>
-
-          <ExplicitChart :explicitnessData="explicitnessStats"/>
-        </v-col>
-
-        <v-col cols="12">
+        <v-col sm="12">
           <v-divider></v-divider>
         </v-col>
 
-        <v-col cols="12">
-          <!-- raw stats table -->
-          <v-simple-table>
-            <template v-slot:default>
-              <thead>
-              <tr class="text-left">
-                <th>Stat</th>
-                <th>Min</th>
-                <th>Max</th>
-                <th>Avg</th>
-              </tr>
-              </thead>
-              <tbody>
-              <tr
-                  v-for="(stats, statName) in rawPlaylistStats"
-                  :key="statName"
-              >
-                <td>{{ statName }}</td>
-                <td>{{ stats.min.name }} ({{ stats.min.value }})</td>
-                <td>{{ stats.max.name }} ({{ stats.max.value }})</td>
-                <td>{{ stats.avg.value }}</td>
-              </tr>
-              </tbody>
-            </template>
-          </v-simple-table>
+        <PolarAudioFeatures :rawStatsData="rawPlaylistStats"/>
+
+        <v-col sm="12">
+          <v-divider></v-divider>
         </v-col>
+
+        <RawStatsTable :rawStatsData="rawPlaylistStats"/>
 
       </v-row>
     </v-col>
@@ -135,20 +57,27 @@
 <script>
 import axios from "axios";
 
-import ExplicitChart from "./charts/ExplicitChart";
 import ReleaseDateChart from "@/components/charts/ReleaseDateChart";
+import PlaylistGeneration from "@/components/charts/PlaylistGeneration";
+import WordCountStats from "@/components/charts/WordCountStats";
+import ExplicitPieChart from "@/components/charts/ExplicitPieChart";
+import PolarAudioFeatures from "@/components/charts/PolarAudioFeatures";
+import RawStatsTable from "@/components/charts/RawStatsTable";
 
 export default {
   name: 'DataView',
   components: {
     ReleaseDateChart,
-    ExplicitChart
+    PlaylistGeneration,
+    WordCountStats,
+    ExplicitPieChart,
+    PolarAudioFeatures,
+    RawStatsTable
   },
   data() {
     return {
       dataError: null,
       loading: false,
-
       playlistID: "1AXy6ag2d0ag8DEdOE7kWm",
       lastPlaylistID: null,
       playlistInputRules: [
@@ -180,7 +109,7 @@ export default {
 
       this.loading = true;
       axios
-          .get('http://localhost:8080/api/v1/playlists/' + this.playlistID)
+          .get("http://localhost:8080/api/v1/playlists/" + this.playlistID)
           .then(response => {
             this.playlistName = response.data["playlist_name"];
             this.playlistOwner = response.data["owner_name"];
@@ -232,8 +161,19 @@ export default {
 </script>
 
 <style>
-.scrollable-table {
-  max-height: 60vh;
-  overflow: auto;
+h3 {
+  margin-bottom: 10px;
+}
+
+/* force show scroll bars on OSx */
+::-webkit-scrollbar {
+  -webkit-appearance: none;
+  width: 7px;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+  background-color: rgba(0, 0, 0, .5);
+  box-shadow: 0 0 1px rgba(255, 255, 255, .5);
 }
 </style>

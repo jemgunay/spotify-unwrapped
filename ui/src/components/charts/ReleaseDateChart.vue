@@ -1,15 +1,21 @@
 <template>
-  <Bar v-if="this.releaseDateData"
-       :chart-options="chartOptions"
-       :chart-data="chartData"
-       chart-id="release-date-chart"
-       dataset-id-key="releaseDate"
-  />
+  <v-col md="7" sm="12">
+    <h3>Track Release Dates</h3>
+
+    <!-- release date chart -->
+    <Bar v-if="this.releaseDateData"
+         :chart-options="chartOptions"
+         :chart-data="chartData"
+         chart-id="release-date-chart"
+         dataset-id-key="releaseDate"
+    />
+  </v-col>
 </template>
 
 <script>
 import {Bar} from 'vue-chartjs/legacy'
 import {BarElement, CategoryScale, Chart as ChartJS, Legend, LinearScale, Title, Tooltip} from 'chart.js'
+import {Green} from '@/components/helpers/helpers'
 
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
 
@@ -45,7 +51,7 @@ export default {
         labels: this.releaseDateData["keys"],
         datasets: [
           {
-            backgroundColor: ['#41B883'],
+            backgroundColor: [Green],
             data: this.releaseDateData["values"]
           }
         ]

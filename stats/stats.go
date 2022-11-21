@@ -44,14 +44,28 @@ func (g *Group) Push(id string, val float64) {
 	}
 }
 
+type GroupCalcOpt func(*Group)
+
+func WithMultiplier(multiplier float64) GroupCalcOpt {
+	return func(group *Group) {
+		group.Min.Value *= multiplier
+		group.Max.Value *= multiplier
+		group.Mean.Value *= multiplier
+	}
+}
+
 // Calc calculates the final statistics for the Group; to be called once all values have bene Pushed.
-func (g *Group) Calc(lookup map[string]spotify.TrackDetails) {
+func (g *Group) Calc(lookup map[string]spotify.TrackDetails, opts ...GroupCalcOpt) {
 	minTrack := lookup[g.Min.id]
 	maxTrack := lookup[g.Max.id]
 	g.Min.Name = minTrack.GetTrackString()
 	g.Max.Name = maxTrack.GetTrackString()
 	if g.count > 0 {
 		g.Mean.Value = g.sum / g.count
+	}
+
+	for _, opt := range opts {
+		opt(g)
 	}
 }
 
