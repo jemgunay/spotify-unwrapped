@@ -34,7 +34,7 @@
         <v-divider></v-divider>
 
         <v-card-text class="white--text">
-          <p class="my-2"><strong>Spotify Unwrapped</strong></p>
+          <h3 class="my-1">Spotify Unwrapped by Jem Gunay</h3>
         </v-card-text>
       </v-card>
     </v-footer>
@@ -64,7 +64,7 @@ export default {
 </script>
 
 <style scoped>
-p {
+h3 {
   font-family: 'Pacifico', cursive;
   font-weight: 1;
 }

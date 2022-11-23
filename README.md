@@ -17,18 +17,27 @@ A web app for visualising Spotify playlist data.
   * speechiness
   * valence (positive/negative)
 
+## Usage
+
+```bash
+go run main.go
+go run main.go -debug # debug logs
+
+cd ui
+npm run serve
+```
+
 ## TODO
 
-* Context API request cancellation
-* Implement Spotify auth store refresh on expiry
+* Deploy to AWS
+* Context API request timeout
 * Upper cap on playlist size, i.e. bail after 2k tracks?
 * Persist playlist in URL (and cache result for a period of time server-side?)
 * Images for playlist & min/max tracks
 * Playlist input tooltip
 * Visualisations
   * Key/tempo vs valence 
-  * Get most/least energetic tune in a playlist 
-  * Oldest/newest track in a playlist
+  * Get most/least energetic tune in a playlist
   * Pie chart of artist genre frequency in a playlist
   * Languages/country
   * Words in title

@@ -12,26 +12,29 @@ import (
 	"time"
 
 	"github.com/jemgunay/spotify-unwrapped/config"
+	"github.com/jemgunay/spotify-unwrapped/spotify/auth"
 	"go.uber.org/zap"
 )
 
 // Requester wraps the Spotify HTTP REST API.
 type Requester struct {
-	httpClient  *http.Client
-	conf        config.Spotify
-	accessToken string
-	logger      config.Logger
+	conf       config.Spotify
+	access     *auth.Access
+	httpClient *http.Client
+	logger     config.Logger
 }
 
 // New initialises a Requester.
 func New(logger config.Logger, conf config.Spotify) Requester {
-	return Requester{
+	r := Requester{
 		conf: conf,
 		httpClient: &http.Client{
 			Timeout: time.Second * 10,
 		},
 		logger: logger,
 	}
+	r.access = auth.New(r.authenticate)
+	return r
 }
 
 type authRespBody struct {
@@ -39,15 +42,15 @@ type authRespBody struct {
 	ExpiresIn   int    `json:"expires_in"`
 }
 
-// Auth requests an access token for
-func (r *Requester) Auth() error {
+// authenticate requests an access token for performing Spotify API requests, as well as its expiry date.
+func (r *Requester) authenticate() (string, time.Time, error) {
 	formValues := url.Values{}
 	formValues.Set("grant_type", "client_credentials")
 	formValuesBuf := strings.NewReader(formValues.Encode())
 
 	req, err := http.NewRequest(http.MethodPost, "https://accounts.spotify.com/api/token", formValuesBuf)
 	if err != nil {
-		return fmt.Errorf("failed to create auth request: %w", err)
+		return "", time.Time{}, fmt.Errorf("failed to create auth request: %w", err)
 	}
 
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -57,25 +60,24 @@ func (r *Requester) Auth() error {
 
 	resp, err := r.httpClient.Do(req)
 	if err != nil {
-		return fmt.Errorf("failed to perform auth request: %w", err)
+		return "", time.Time{}, fmt.Errorf("failed to perform auth request: %w", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("unexpected status from auth request: %s", resp.Status)
+		return "", time.Time{}, fmt.Errorf("unexpected status from auth request: %s", resp.Status)
 	}
 
 	authBody := authRespBody{}
 	if err := json.NewDecoder(resp.Body).Decode(&authBody); err != nil {
-		return fmt.Errorf("failed to JSON decode body from auth request: %w", err)
+		return "", time.Time{}, fmt.Errorf("failed to JSON decode body from auth request: %w", err)
 	}
 
 	// successfully authenticated
-	r.accessToken = authBody.AccessToken
-	expiry := time.Now().Add(time.Duration(authBody.ExpiresIn) * time.Second)
+	expiry := time.Now().UTC().Add(time.Duration(authBody.ExpiresIn) * time.Second)
 	r.logger.Info("successfully created authenticated Spotify client", zap.Time("expiry", expiry))
 
-	return nil
+	return authBody.AccessToken, expiry, nil
 }
 
 const apiURL = "https://api.spotify.com/v1/"
@@ -151,7 +153,10 @@ type Album struct {
 }
 
 // ErrNotFound indicates that the requested resource does not exist.
-var ErrNotFound = errors.New("not found")
+var (
+	ErrNotFound     = errors.New("not found")
+	ErrUnauthorised = errors.New("unauthorised")
+)
 
 // GetPlaylist gets all required data for the given playlist ID.
 // https://developer.spotify.com/documentation/web-api/reference/#/operations/get-playlist
@@ -181,7 +186,7 @@ func (r *Requester) getPlaylist(id string) (Playlist, error) {
 	reqURL := apiURL + "playlists/" + id
 
 	playlist := Playlist{}
-	if err := r.get(reqURL, &playlist); err != nil {
+	if err := r.performGetRequest(reqURL, &playlist); err != nil {
 		return playlist, fmt.Errorf("get playlist request failed: %w", err)
 	}
 
@@ -190,7 +195,7 @@ func (r *Requester) getPlaylist(id string) (Playlist, error) {
 
 func (r *Requester) getPlaylistTracksPage(nextURL string) (Tracks, error) {
 	tracks := Tracks{}
-	if err := r.get(nextURL, &tracks); err != nil {
+	if err := r.performGetRequest(nextURL, &tracks); err != nil {
 		return tracks, fmt.Errorf("get playlist tracks request failed: %w", err)
 	}
 
@@ -237,7 +242,7 @@ func (r *Requester) GetAudioFeatures(trackIDs []string) ([]AudioFeatures, error)
 		reqURL := apiURL + "audio-features?ids=" + strings.Join(ids, ",")
 
 		audioFeatures := AudioFeaturesResult{}
-		if err := r.get(reqURL, &audioFeatures); err != nil {
+		if err := r.performGetRequest(reqURL, &audioFeatures); err != nil {
 			return nil, fmt.Errorf("audio features request failed: %w", err)
 		}
 
@@ -253,15 +258,46 @@ func (r *Requester) GetAudioFeatures(trackIDs []string) ([]AudioFeatures, error)
 	}
 }
 
-func (r *Requester) get(reqURL string, target interface{}) error {
+func (r *Requester) performGetRequest(reqURL string, target interface{}) error {
+	var err error
+	for i := 0; i < 10; i++ {
+		accessToken, err := r.access.Get()
+		if err != nil {
+			r.logger.Error("failed to refresh access token after natural token expiry",
+				zap.String("url", reqURL), zap.Int("attempt", i))
+			continue
+		}
+
+		err = r.get(reqURL, accessToken, target)
+		switch err {
+		case nil, ErrNotFound:
+			return err
+		case ErrUnauthorised:
+			if err := r.access.Refresh(); err != nil {
+				r.logger.Error("failed to refresh access token",
+					zap.String("url", reqURL), zap.Int("attempt", i))
+			}
+		default:
+			r.logger.Error("failed to perform get request",
+				zap.Error(err), zap.String("url", reqURL), zap.Int("attempt", i))
+			time.Sleep(time.Millisecond * 200)
+		}
+	}
+
+	r.logger.Error("failed to perform get request after maximum attempts",
+		zap.Error(err), zap.String("url", reqURL))
+	return err
+}
+
+func (r *Requester) get(reqURL string, accessToken string, target interface{}) error {
 	req, err := http.NewRequest(http.MethodGet, reqURL, nil)
 	if err != nil {
 		return fmt.Errorf("failed to create request: %w", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+r.accessToken)
+	req.Header.Set("Authorization", "Bearer "+accessToken)
 
-	r.getCurl(req)
+	r.logAsDebugCurl(req)
 
 	resp, err := r.httpClient.Do(req)
 	if err != nil {
@@ -273,6 +309,9 @@ func (r *Requester) get(reqURL string, target interface{}) error {
 	case http.StatusOK:
 	case http.StatusNotFound:
 		return ErrNotFound
+	case http.StatusUnauthorized:
+		// trigger force access token refresh
+		return ErrUnauthorised
 	default:
 		return fmt.Errorf("unexpected response status: %s", resp.Status)
 	}
@@ -289,7 +328,8 @@ func (r *Requester) get(reqURL string, target interface{}) error {
 	return nil
 }
 
-func (r *Requester) getCurl(req *http.Request) {
+// logAsDebugCurl is a helper func for logging
+func (r *Requester) logAsDebugCurl(req *http.Request) {
 	u := req.URL.String()
 	method := req.Method
 	auth := req.Header.Get("Authorization")

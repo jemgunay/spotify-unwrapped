@@ -26,4 +26,14 @@ export default {
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap');
+
+h3.section-heading {
+  margin-bottom: 15px;
+}
+
+.section-heading, strong {
+  font-family: 'Inter', sans-serif;
+  color: #3c3c3c;
+}
+
 </style>

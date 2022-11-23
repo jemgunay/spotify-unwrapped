@@ -163,15 +163,6 @@ export default {
 </script>
 
 <style>
-h3.section-heading {
-  margin-bottom: 15px;
-}
-
-.section-heading {
-  font-family: 'Inter', sans-serif;
-  color: #313131;
-}
-
 /* force show scroll bars on OSx */
 ::-webkit-scrollbar {
   -webkit-appearance: none;

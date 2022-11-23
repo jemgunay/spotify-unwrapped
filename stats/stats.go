@@ -44,8 +44,10 @@ func (g *Group) Push(id string, val float64) {
 	}
 }
 
+// GroupCalcOpt defines a Calc option.
 type GroupCalcOpt func(*Group)
 
+// WithMultiplier multiplies the Group output values, e.g. can be used to convert decimal values to percentages.
 func WithMultiplier(multiplier float64) GroupCalcOpt {
 	return func(group *Group) {
 		group.Min.Value *= multiplier
@@ -69,6 +71,7 @@ func (g *Group) Calc(lookup map[string]spotify.TrackDetails, opts ...GroupCalcOp
 	}
 }
 
+// CalcDate is Calc but sets the Group Date fields to the unix Value, but as a formatted timestamp
 func (g *Group) CalcDate(lookup map[string]spotify.TrackDetails) {
 	minTrack := lookup[g.Min.id]
 	maxTrack := lookup[g.Max.id]
@@ -106,7 +109,9 @@ type MappingOpt func(*OrderedKVPair)
 type SortBy int
 
 const (
+	// SortKey sorts the OrderedKVPair by key.
 	SortKey SortBy = iota
+	// SortValue sorts the OrderedKVPair by value.
 	SortValue
 )
 

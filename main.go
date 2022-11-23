@@ -3,7 +3,6 @@ package main
 import (
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/gorilla/mux"
 	"go.uber.org/zap"
@@ -19,14 +18,6 @@ func main() {
 
 	// generate Spotify client auth token
 	spotifyReq := spotify.New(logger, conf.Spotify)
-	for {
-		if err := spotifyReq.Auth(); err != nil {
-			logger.Error("failed to auth spotify client", zap.Error(err))
-			time.Sleep(time.Second)
-			continue
-		}
-		break
-	}
 
 	// define HTTP handlers
 	handlers := api.New(logger, spotifyReq)
