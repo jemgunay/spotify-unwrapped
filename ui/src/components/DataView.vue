@@ -49,6 +49,12 @@
           <v-divider></v-divider>
         </v-col>
 
+        <PopularityDoughnut :rawStatsData="rawPlaylistStats"/>
+
+        <v-col sm="12">
+          <v-divider></v-divider>
+        </v-col>
+
         <RawStatsTable :rawStatsData="rawPlaylistStats"/>
 
       </v-row>
@@ -65,6 +71,7 @@ import WordCountStats from "@/components/charts/WordCountStats";
 import ExplicitPieChart from "@/components/charts/ExplicitPieChart";
 import PolarAudioFeatures from "@/components/charts/PolarAudioFeatures";
 import RawStatsTable from "@/components/charts/RawStatsTable";
+import PopularityDoughnut from "@/components/charts/PopularityDoughnut";
 
 export default {
   name: 'DataView',
@@ -74,6 +81,7 @@ export default {
     WordCountStats,
     ExplicitPieChart,
     PolarAudioFeatures,
+    PopularityDoughnut,
     RawStatsTable
   },
   data() {

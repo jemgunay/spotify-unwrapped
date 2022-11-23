@@ -1,5 +1,5 @@
 <template>
-  <v-col md="6" sm="12" offset-md="3">
+  <v-col md="6" offset-md="3" sm="12">
     <h3 class="section-heading">Audio Feature Averages</h3>
 
     <!-- raw audio feature stat averages -->
