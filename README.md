@@ -7,6 +7,7 @@ A web app for visualising Spotify playlist data.
 * Explicit lyric pie chart
 * Track release year bar chart
 * Playlist average age & its generation (is your playlist a Boomer, Zoomer, etc)
+* Average track audio features polar chart
 * General track audio feature stats table with averages
   * acousticness
   * danceability
@@ -18,12 +19,12 @@ A web app for visualising Spotify playlist data.
 
 ## TODO
 
+* Context API request cancellation
 * Implement Spotify auth store refresh on expiry
 * Upper cap on playlist size, i.e. bail after 2k tracks?
 * Persist playlist in URL (and cache result for a period of time server-side?)
 * Images for playlist & min/max tracks
-* Input tooltip
-* Bar Chart animate up
+* Playlist input tooltip
 * Visualisations
   * Key/tempo vs valence 
   * Get most/least energetic tune in a playlist 
@@ -33,4 +34,5 @@ A web app for visualising Spotify playlist data.
   * Words in title
   * Track duration
   * Loudness
-  * Popularity & followers
+  * Popularity & artist followers
+  * Most common artist

@@ -1,6 +1,6 @@
 <template>
   <v-col md="5" offset-md="1" sm="12">
-    <h3>Explicit vs Non-Explicit Lyrics</h3>
+    <h3 class="section-heading">Explicit vs Non-Explicit Lyrics</h3>
 
     <!-- explicit lyrics pie chart -->
     <Pie v-if="this.explicitnessData"
@@ -16,7 +16,7 @@
 <script>
 import {Pie} from 'vue-chartjs/legacy'
 import {ArcElement, CategoryScale, Chart as ChartJS, Legend, Title, Tooltip} from 'chart.js'
-import {Green, Red} from '@/components/helpers/helpers'
+import {Green, Red} from '@/components/helpers/colours'
 
 ChartJS.register(Title, Tooltip, Legend, ArcElement, CategoryScale)
 

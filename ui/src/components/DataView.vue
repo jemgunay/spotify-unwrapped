@@ -1,26 +1,28 @@
 <template>
-  <v-row class="mx-10 mb-10">
-    <v-col md="4" sm="12">
+  <v-row class="mx-10">
+    <v-col cols="12" md="4" offset-md="4" sm="8" offset-sm="2">
       <v-text-field
           label="Playlist ID"
           v-model="playlistID"
           :rules="playlistInputRules"
           :loading="loading"
+          outlined
+          clearable
+          hide-details="auto"
+          class="mt-6 mb-2"
           @input="getPlaylistData">
       </v-text-field>
     </v-col>
 
     <v-col sm="12">
-      <p v-if="dataError">{{ dataError }}</p>
-      <p v-else-if="loading">Unwrapping playlist <strong>{{ playlistID }}</strong>...</p>
-    </v-col>
+      <p v-if="dataError" class="text-center">{{ dataError }}</p>
+      <p v-else-if="loading" class="text-center">Unwrapping playlist <strong>{{ playlistID }}</strong>...</p>
 
-    <v-col sm="12">
-      <v-row v-if="playlistName">
+      <v-row v-if="playlistName" id="data-container">
 
         <v-col sm="12">
           <!-- playlist/owner title -->
-          <h1>{{ playlistName }} by {{ playlistOwner }}</h1>
+          <h1 class="section-heading">{{ playlistName }} by {{ playlistOwner }}</h1>
         </v-col>
 
         <v-col sm="12">
@@ -161,8 +163,13 @@ export default {
 </script>
 
 <style>
-h3 {
-  margin-bottom: 10px;
+h3.section-heading {
+  margin-bottom: 15px;
+}
+
+.section-heading {
+  font-family: 'Inter', sans-serif;
+  color: #313131;
 }
 
 /* force show scroll bars on OSx */

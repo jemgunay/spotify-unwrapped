@@ -1,6 +1,6 @@
 <template>
   <v-col md="12">
-    <h3>Raw Stats</h3>
+    <h3 class="section-heading">Raw Stats</h3>
 
     <!-- raw stats table -->
     <v-simple-table>

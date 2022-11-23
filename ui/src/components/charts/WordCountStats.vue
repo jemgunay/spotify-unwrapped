@@ -1,6 +1,6 @@
 <template>
   <v-col md="5" sm="12">
-    <h3>Common Words in Track Titles</h3>
+    <h3 class="section-heading">Common Words in Track Titles</h3>
 
     <!-- title word count stats table -->
     <v-simple-table dense class="scrollable-table">
@@ -41,7 +41,7 @@ export default {
 
 <style>
 .scrollable-table {
-  max-height: 60vh;
+  max-height: 70vh;
   overflow: auto;
 }
 </style>

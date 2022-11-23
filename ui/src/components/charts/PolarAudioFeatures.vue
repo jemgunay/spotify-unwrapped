@@ -1,6 +1,6 @@
 <template>
   <v-col md="6" sm="12" offset-md="3">
-    <h3>Audio Feature Averages</h3>
+    <h3 class="section-heading">Audio Feature Averages</h3>
 
     <!-- raw audio feature stat averages -->
     <PolarArea v-if="rawStatsData"
@@ -15,7 +15,7 @@
 <script>
 import {PolarArea} from 'vue-chartjs/legacy'
 import {ArcElement, Chart as ChartJS, Legend, RadialLinearScale, Title, Tooltip} from 'chart.js'
-import {Colours} from '@/components/helpers/helpers'
+import {Colours} from '@/components/helpers/colours'
 
 ChartJS.register(Title, Tooltip, Legend, ArcElement, RadialLinearScale)
 

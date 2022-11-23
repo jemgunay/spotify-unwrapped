@@ -1,11 +1,11 @@
 <template>
   <v-col md="5" sm="12">
     <!-- generations text -->
-    <h4 class="mb-3">Your playlist's average age is {{ generationDetails["age"] }} years old (born {{
+    <p class="mb-3">Your playlist's average age is <b>{{ generationDetails["age"] }} years old</b> (born {{
         generationDetails["year"]
-      }})! This makes it a member of
-      {{ generationDetails["name"] }}
-      ({{ generationDetails["lower"] }} - {{ generationDetails["upper"] }})...</h4>
+      }}), making it a member of
+    <b>{{ generationDetails["name"] }}</b>
+      ({{ generationDetails["lower"] }} - {{ generationDetails["upper"] }})...</p>
     <p class="generation-summary">"{{ generationDetails["summary"] }}"</p>
 
     <v-divider class="mt-7 mb-4"></v-divider>

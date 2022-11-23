@@ -1,6 +1,6 @@
 <template>
   <v-col md="7" sm="12">
-    <h3>Track Release Dates</h3>
+    <h3 class="section-heading">Track Release Dates</h3>
 
     <!-- release date chart -->
     <Bar v-if="this.releaseDateData"
@@ -15,7 +15,7 @@
 <script>
 import {Bar} from 'vue-chartjs/legacy'
 import {BarElement, CategoryScale, Chart as ChartJS, Legend, LinearScale, Title, Tooltip} from 'chart.js'
-import {Green} from '@/components/helpers/helpers'
+import {Green} from '@/components/helpers/colours'
 
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
 
