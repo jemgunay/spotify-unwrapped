@@ -38,8 +38,8 @@ func New() Config {
 	return Config{
 		Port: getEnvVarInt(logger, "PORT", 8080),
 		Spotify: Spotify{
-			ClientID:     getEnvVar(logger, "CLIENT_ID", ""),
-			ClientSecret: getEnvVar(logger, "CLIENT_SECRET", ""),
+			ClientID:     getEnvVar(logger, "SPOTIFY_CLIENT_ID", ""),
+			ClientSecret: getEnvVar(logger, "SPOTIFY_CLIENT_SECRET", ""),
 		},
 		Logger: logger,
 	}

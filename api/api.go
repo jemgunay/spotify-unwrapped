@@ -31,12 +31,13 @@ func New(logger config.Logger, spotifyReq spotify.Requester) API {
 	}
 }
 
-// PlaylistsHandler provides data used to drive visualisations.
+// PlaylistsHandler processes the given Spotify playlist data used to drive visualisations.
 func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
+	playlistID := vars["playlistID"]
 
 	// fetch playlist data for given playlist ID
-	playlistData, err := a.spotifyReq.GetPlaylist(vars["playlistID"])
+	playlistData, err := a.spotifyReq.GetPlaylist(playlistID)
 	if err != nil {
 		a.logger.Error("failed to fetch playlist data", zap.Error(err))
 		if errors.Is(err, spotify.ErrNotFound) {
@@ -69,6 +70,7 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 			releaseDates.Push(track.TrackDetails.ID, float64(releaseDate.Unix()))
 		}
 
+		// count explicit vs explicit tracks
 		if track.TrackDetails.Explicit {
 			explicitMapping.Push("explicit")
 		} else {

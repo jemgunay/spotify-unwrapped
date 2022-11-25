@@ -75,7 +75,7 @@ func (r *Requester) authenticate() (string, time.Time, error) {
 
 	// successfully authenticated
 	expiry := time.Now().UTC().Add(time.Duration(authBody.ExpiresIn) * time.Second)
-	r.logger.Info("successfully created authenticated Spotify client", zap.Time("expiry", expiry))
+	r.logger.Info("successfully authenticated with Spotify", zap.Time("expiry", expiry))
 
 	return authBody.AccessToken, expiry, nil
 }
@@ -156,6 +156,7 @@ type Album struct {
 var (
 	ErrNotFound     = errors.New("not found")
 	ErrUnauthorised = errors.New("unauthorised")
+	ErrRateLimited  = errors.New("rate limited")
 )
 
 // GetPlaylist gets all required data for the given playlist ID.
@@ -277,6 +278,11 @@ func (r *Requester) performGetRequest(reqURL string, target interface{}) error {
 				r.logger.Error("failed to refresh access token",
 					zap.String("url", reqURL), zap.Int("attempt", i))
 			}
+		case ErrRateLimited:
+			r.logger.Error("requests are being rate limited",
+				zap.Error(err), zap.String("url", reqURL), zap.Int("attempt", i))
+			// TODO: use API Retry-After header (this will do for now): https://stackoverflow.com/questions/30548073/spotify-web-api-rate-limits
+			time.Sleep(time.Millisecond * 500)
 		default:
 			r.logger.Error("failed to perform get request",
 				zap.Error(err), zap.String("url", reqURL), zap.Int("attempt", i))
@@ -312,6 +318,8 @@ func (r *Requester) get(reqURL string, accessToken string, target interface{}) e
 	case http.StatusUnauthorized:
 		// trigger force access token refresh
 		return ErrUnauthorised
+	case http.StatusTooManyRequests:
+		return ErrRateLimited
 	default:
 		return fmt.Errorf("unexpected response status: %s", resp.Status)
 	}

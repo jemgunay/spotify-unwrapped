@@ -23,7 +23,7 @@ func New(refreshFunc refreshFunc) *Access {
 	}
 }
 
-// Get retrieves the access token, or fetches a fresh one if it has expired.
+// Get retrieves the access token, or lazy-fetches a fresh one if it has expired.
 func (a *Access) Get() (string, error) {
 	a.mu.RLock()
 	currentExpiry := a.expiry
