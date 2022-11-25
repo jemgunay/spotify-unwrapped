@@ -86,6 +86,7 @@ export default {
   },
   data() {
     return {
+      apiHost: process.env.VUE_APP_API_HOST,
       dataError: null,
       loading: false,
       playlistID: "1AXy6ag2d0ag8DEdOE7kWm",
@@ -119,7 +120,7 @@ export default {
 
       this.loading = true;
       axios
-          .get("http://localhost:8080/api/v1/playlists/" + this.playlistID)
+          .get(this.apiHost + "/api/v1/playlists/" + this.playlistID)
           .then(response => {
             this.playlistName = response.data["playlist_name"];
             this.playlistOwner = response.data["owner_name"];

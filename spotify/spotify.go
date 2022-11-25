@@ -261,10 +261,11 @@ func (r *Requester) GetAudioFeatures(trackIDs []string) ([]AudioFeatures, error)
 
 func (r *Requester) performGetRequest(reqURL string, target interface{}) error {
 	var err error
-	for i := 0; i < 10; i++ {
-		accessToken, err := r.access.Get()
+	for i := 1; i <= 10; i++ {
+		var accessToken string
+		accessToken, err = r.access.Get()
 		if err != nil {
-			r.logger.Error("failed to refresh access token after natural token expiry",
+			r.logger.Error("failed to refresh access token after natural token expiry", zap.Error(err),
 				zap.String("url", reqURL), zap.Int("attempt", i))
 			continue
 		}
@@ -275,16 +276,16 @@ func (r *Requester) performGetRequest(reqURL string, target interface{}) error {
 			return err
 		case ErrUnauthorised:
 			if err := r.access.Refresh(); err != nil {
-				r.logger.Error("failed to refresh access token",
+				r.logger.Error("failed to refresh access token", zap.Error(err),
 					zap.String("url", reqURL), zap.Int("attempt", i))
 			}
 		case ErrRateLimited:
-			r.logger.Error("requests are being rate limited",
+			r.logger.Error("requests are being rate limited", zap.Error(err),
 				zap.Error(err), zap.String("url", reqURL), zap.Int("attempt", i))
 			// TODO: use API Retry-After header (this will do for now): https://stackoverflow.com/questions/30548073/spotify-web-api-rate-limits
 			time.Sleep(time.Millisecond * 500)
 		default:
-			r.logger.Error("failed to perform get request",
+			r.logger.Error("failed to perform get request", zap.Error(err),
 				zap.Error(err), zap.String("url", reqURL), zap.Int("attempt", i))
 			time.Sleep(time.Millisecond * 200)
 		}
