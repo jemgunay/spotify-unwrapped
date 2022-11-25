@@ -1,0 +1,116 @@
+{
+  "href": "https://api.spotify.com/v1/playlists/1AXy6ag2d0ag8DEdOE7kWm/tracks?offset=0&limit=1",
+  "items": [
+    {
+      "added_at": "2018-05-31T21:54:35Z",
+      "added_by": {
+        "external_urls": {
+          "spotify": "https://open.spotify.com/user/11139372250"
+        },
+        "href": "https://api.spotify.com/v1/users/11139372250",
+        "id": "11139372250",
+        "type": "user",
+        "uri": "spotify:user:11139372250"
+      },
+      "is_local": false,
+      "primary_color": null,
+      "track": {
+        "album": {
+          "album_type": "single",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/0LyfQWJT6nXafLPZqxe9Of"
+              },
+              "href": "https://api.spotify.com/v1/artists/0LyfQWJT6nXafLPZqxe9Of",
+              "id": "0LyfQWJT6nXafLPZqxe9Of",
+              "name": "Various Artists",
+              "type": "artist",
+              "uri": "spotify:artist:0LyfQWJT6nXafLPZqxe9Of"
+            }
+          ],
+          "available_markets": [],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/0p67tm4VoLynlb8PpK41em"
+          },
+          "href": "https://api.spotify.com/v1/albums/0p67tm4VoLynlb8PpK41em",
+          "id": "0p67tm4VoLynlb8PpK41em",
+          "images": [
+            {
+              "height": 640,
+              "url": "https://i.scdn.co/image/ab67616d0000b2738c5906f6c4141517c831be61",
+              "width": 640
+            },
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ab67616d00001e028c5906f6c4141517c831be61",
+              "width": 300
+            },
+            {
+              "height": 64,
+              "url": "https://i.scdn.co/image/ab67616d000048518c5906f6c4141517c831be61",
+              "width": 64
+            }
+          ],
+          "name": "Phase One",
+          "release_date": "2017-01-16",
+          "release_date_precision": "day",
+          "total_tracks": 5,
+          "type": "album",
+          "uri": "spotify:album:0p67tm4VoLynlb8PpK41em"
+        },
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/6wPieqYFXKwQQ9EKhyOCzE"
+            },
+            "href": "https://api.spotify.com/v1/artists/6wPieqYFXKwQQ9EKhyOCzE",
+            "id": "6wPieqYFXKwQQ9EKhyOCzE",
+            "name": "Lupo",
+            "type": "artist",
+            "uri": "spotify:artist:6wPieqYFXKwQQ9EKhyOCzE"
+          },
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/1ndhXmvLPiiyl6mzOSozed"
+            },
+            "href": "https://api.spotify.com/v1/artists/1ndhXmvLPiiyl6mzOSozed",
+            "id": "1ndhXmvLPiiyl6mzOSozed",
+            "name": "Sinja",
+            "type": "artist",
+            "uri": "spotify:artist:1ndhXmvLPiiyl6mzOSozed"
+          }
+        ],
+        "available_markets": [],
+        "disc_number": 1,
+        "duration_ms": 241363,
+        "episode": false,
+        "explicit": true,
+        "external_ids": {
+          "isrc": "GB8KE1651336"
+        },
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/1G3AUpbZ8AWTQnbJ7u9PBD"
+        },
+        "href": "https://api.spotify.com/v1/tracks/1G3AUpbZ8AWTQnbJ7u9PBD",
+        "id": "1G3AUpbZ8AWTQnbJ7u9PBD",
+        "is_local": false,
+        "name": "Eager",
+        "popularity": 0,
+        "preview_url": null,
+        "track": true,
+        "track_number": 2,
+        "type": "track",
+        "uri": "spotify:track:1G3AUpbZ8AWTQnbJ7u9PBD"
+      },
+      "video_thumbnail": {
+        "url": null
+      }
+    }
+  ],
+  "limit": 1,
+  "next": "https://api.spotify.com/v1/playlists/1AXy6ag2d0ag8DEdOE7kWm/tracks?offset=1&limit=1",
+  "offset": 0,
+  "previous": null,
+  "total": 541
+}
