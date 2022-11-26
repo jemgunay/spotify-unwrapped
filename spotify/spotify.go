@@ -11,9 +11,10 @@ import (
 	"strings"
 	"time"
 
+	"go.uber.org/zap"
+
 	"github.com/jemgunay/spotify-unwrapped/config"
 	"github.com/jemgunay/spotify-unwrapped/spotify/auth"
-	"go.uber.org/zap"
 )
 
 // Requester wraps the Spotify HTTP REST API.
@@ -80,13 +81,12 @@ func (r *Requester) authenticate() (string, time.Time, error) {
 	return authBody.AccessToken, expiry, nil
 }
 
-const apiURL = "https://api.spotify.com/v1/"
-
 // Playlist represents a playlist of tracks.
 type Playlist struct {
 	Name   string `json:"name"`
 	Owner  Owner  `json:"owner"`
 	Tracks Tracks `json:"tracks"`
+	Images Images `json:"images"`
 }
 
 // Owner represents a playlist owner.
@@ -150,6 +150,20 @@ type Artist struct {
 // Album represents a single album.
 type Album struct {
 	ReleaseDate string `json:"release_date"`
+	Images      Images `json:"images"`
+}
+
+type Images []Image
+
+func (i Images) First() string {
+	if len(i) == 0 {
+		return ""
+	}
+	return i[0].URL
+}
+
+type Image struct {
+	URL string `json:"url"`
 }
 
 // ErrNotFound indicates that the requested resource does not exist.
@@ -182,6 +196,8 @@ func (r *Requester) GetPlaylist(id string) (Playlist, error) {
 		playlist.Tracks.NextURL = playlistTracks.NextURL
 	}
 }
+
+const apiURL = "https://api.spotify.com/v1/"
 
 func (r *Requester) getPlaylist(id string) (Playlist, error) {
 	reqURL := apiURL + "playlists/" + id
@@ -224,8 +240,6 @@ type AudioFeatures struct {
 	Type             string  `json:"type"`
 	ID               string  `json:"id"`
 	URI              string  `json:"uri"`
-	TrackHref        string  `json:"track_href"`
-	AnalysisURL      string  `json:"analysis_url"`
 	DurationMs       int     `json:"duration_ms"`
 	TimeSignature    int     `json:"time_signature"`
 }

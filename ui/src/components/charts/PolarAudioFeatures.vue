@@ -54,6 +54,7 @@ export default {
           'Acousticness',
           'Danceability',
           'Energy',
+          'Liveness',
           'Speechiness',
           'Positiveness'
         ],
@@ -65,6 +66,7 @@ export default {
               this.rawStatsData['acousticness']['avg']['value'],
               this.rawStatsData['danceability']['avg']['value'],
               this.rawStatsData['energy']['avg']['value'],
+              this.rawStatsData['liveness']['avg']['value'],
               this.rawStatsData['speechiness']['avg']['value'],
               this.rawStatsData['valence']['avg']['value']
             ]

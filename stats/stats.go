@@ -7,25 +7,26 @@ import (
 	"github.com/jemgunay/spotify-unwrapped/spotify"
 )
 
-type detail struct {
-	id    string
-	Name  string  `json:"name"`
-	Value float64 `json:"value"`
-	Date  string  `json:"date,omitempty"`
+type Detail struct {
+	id         string
+	Name       string  `json:"name"`
+	CoverImage string  `json:"cover_image"`
+	Value      float64 `json:"value"`
+	Date       string  `json:"date,omitempty"`
 }
 
 // DateYear determines the year from the date value.
-func (d detail) DateYear() int {
+func (d Detail) DateYear() int {
 	return time.Unix(int64(d.Value), 0).Year()
 }
 
 // Group is used to calculate the min, max and average values for a dataset.
 type Group struct {
-	Min   detail `json:"min"`
-	Max   detail `json:"max"`
+	Min   Detail `json:"min"`
+	Max   Detail `json:"max"`
 	sum   float64
 	count float64
-	Mean  detail `json:"avg"`
+	Mean  Detail `json:"avg"`
 }
 
 // Push pushes a value and its key into the Group. Call Calc to finalise the Group statistics.
@@ -33,7 +34,7 @@ func (g *Group) Push(id string, val float64) {
 	g.sum += val
 	g.count++
 
-	d := detail{id: id, Value: val}
+	d := Detail{id: id, Value: val}
 	switch {
 	case g.Min.id == "":
 		g.Min, g.Max = d, d
@@ -61,7 +62,9 @@ func (g *Group) Calc(lookup map[string]spotify.TrackDetails, opts ...GroupCalcOp
 	minTrack := lookup[g.Min.id]
 	maxTrack := lookup[g.Max.id]
 	g.Min.Name = minTrack.GetTrackString()
+	g.Min.CoverImage = minTrack.Album.Images.First()
 	g.Max.Name = maxTrack.GetTrackString()
+	g.Max.CoverImage = maxTrack.Album.Images.First()
 	if g.count > 0 {
 		g.Mean.Value = g.sum / g.count
 	}

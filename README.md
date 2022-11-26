@@ -30,8 +30,7 @@ npm run serve
 
 ## TODO
 
-* Deploy to AWS
-* Context API request timeout
+* API context request timeout (allow a few minutes)
 * Upper cap on playlist size, i.e. bail after 2k tracks/N pages?
 * Persist playlist in URL (and cache result for a period of time server-side?)
 * Images for playlist & min/max tracks
