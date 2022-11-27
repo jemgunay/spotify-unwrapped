@@ -95,15 +95,7 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// aggregate track data for each stat
-	var (
-		energy           stats.Group
-		danceability     stats.Group
-		valence          stats.Group
-		acousticness     stats.Group
-		speechiness      stats.Group
-		instrumentalness stats.Group
-		liveness         stats.Group
-	)
+	var energy, danceability, valence, acousticness, speechiness, instrumentalness, liveness stats.Group
 	for _, feature := range audioFeatures {
 		energy.Push(feature.ID, feature.Energy)
 		danceability.Push(feature.ID, feature.Danceability)
