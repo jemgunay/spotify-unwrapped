@@ -1,29 +1,54 @@
 <template>
-  <v-col md="6" offset-md="3" sm="12">
-    <h3 class="section-heading">Track Average Popularity</h3>
+  <v-col cols="12">
+    <v-row>
+      <v-col md="6" cols="12">
+        <h3 class="section-heading">Track Popularity</h3>
 
-    <!-- popularity doughnut chart -->
-    <Doughnut v-if="this.rawStatsData"
-              :chart-options="chartOptions"
-              :chart-data="chartData"
-              chart-id="popularity-chart"
-              dataset-id-key="popularity"
-              id="explicit-pie"
-    />
+        <v-row>
+          <v-col cols="12" sm="6">
+            <TrackStatPanel
+                stat-title="Least Popular"
+                :track-name="rawStatsData['popularity']['min']['name']"
+                :cover-image="rawStatsData['popularity']['min']['cover_image']"
+            />
+          </v-col>
+          <v-col cols="12" sm="6">
+            <TrackStatPanel
+                stat-title="Most Popular"
+                :track-name="rawStatsData['popularity']['max']['name']"
+                :cover-image="rawStatsData['popularity']['max']['cover_image']"
+            />
+          </v-col>
+        </v-row>
+      </v-col>
+
+      <v-col md="6" cols="12">
+        <!-- popularity doughnut chart -->
+        <Doughnut v-if="this.rawStatsData"
+                  :chart-options="chartOptions"
+                  :chart-data="chartData"
+                  chart-id="popularity-chart"
+                  dataset-id-key="popularity"
+                  id="explicit-pie"
+        />
+      </v-col>
+    </v-row>
   </v-col>
 </template>
 
 <script>
 import {Doughnut} from 'vue-chartjs/legacy'
 import {ArcElement, CategoryScale, Chart as ChartJS, Legend, Title, Tooltip} from 'chart.js'
-import {Green, Orange, Red} from '@/components/helpers/colours'
+import {Green, Orange, Red} from '@/helpers/colours'
+import TrackStatPanel from "@/components/TrackStatPanel";
 
 ChartJS.register(Title, Tooltip, Legend, ArcElement, CategoryScale)
 
 export default {
   name: 'PopularityDoughnut',
   components: {
-    Doughnut
+    Doughnut,
+    TrackStatPanel
   },
   props: {
     rawStatsData: {
@@ -58,7 +83,6 @@ export default {
     },
     determineHealthColour() {
       let val = this.rawStatsData["popularity"]["avg"]["value"];
-      console.log(val)
       if (val < 33) {
         return Red;
       } else if (val < 66) {

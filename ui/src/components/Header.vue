@@ -1,6 +1,6 @@
 <template>
   <v-row>
-    <v-col sm="12">
+    <v-col cols="12">
       <h1 class="header-title mt-14" :style="{'color':titleColour}">
         Spotify Unwrapped
         <v-icon size="48px" :style="{'color':titleColour}">mdi-gift-open-outline</v-icon>
@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import {Green} from "@/components/helpers/colours";
+import {Green} from "@/helpers/colours";
 
 export default {
   name: 'Header',

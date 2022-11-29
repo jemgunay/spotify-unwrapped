@@ -9,8 +9,8 @@ import (
 
 type Detail struct {
 	id         string
-	Name       string  `json:"name"`
-	CoverImage string  `json:"cover_image"`
+	Name       string  `json:"name,omitempty"`
+	CoverImage string  `json:"cover_image,omitempty"`
 	Value      float64 `json:"value"`
 	Date       string  `json:"date,omitempty"`
 }
@@ -74,16 +74,13 @@ func (g *Group) Calc(lookup map[string]spotify.TrackDetails, opts ...GroupCalcOp
 	}
 }
 
-// CalcDate is Calc but sets the Group Date fields to the unix Value, but as a formatted timestamp
+// CalcDate is Calc but sets the Group Date fields to a formatted timestamp.
 func (g *Group) CalcDate(lookup map[string]spotify.TrackDetails) {
-	minTrack := lookup[g.Min.id]
-	maxTrack := lookup[g.Max.id]
-	g.Min.Name = minTrack.GetTrackString()
-	g.Max.Name = maxTrack.GetTrackString()
+	g.Calc(lookup)
+
 	g.Min.Date = unixToDate(g.Min.Value)
 	g.Max.Date = unixToDate(g.Max.Value)
 	if g.count > 0 {
-		g.Mean.Value = g.sum / g.count
 		g.Mean.Date = unixToDate(g.Mean.Value)
 	}
 }

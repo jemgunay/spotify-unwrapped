@@ -1,5 +1,5 @@
 <template>
-  <v-col md="7" sm="12">
+  <v-col md="6" cols="12">
     <h3 class="section-heading">Track Release Dates</h3>
 
     <!-- release date chart -->
@@ -15,7 +15,7 @@
 <script>
 import {Bar} from 'vue-chartjs/legacy'
 import {BarElement, CategoryScale, Chart as ChartJS, Legend, LinearScale, Title, Tooltip} from 'chart.js'
-import {Green} from '@/components/helpers/colours'
+import {Green} from '@/helpers/colours'
 
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
 

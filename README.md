@@ -16,9 +16,6 @@ A web app for visualising Spotify playlist data.
   * Liveness
   * Valence (positive/negative)
 * Average track popularity doughnut chart
-* General track audio feature stats table with averages
-  
-  * Popularity
 
 ## Usage
 
@@ -32,12 +29,12 @@ npm run serve
 
 ## TODO
 
-* change title font
+* Fix playlist name + image display
+* Fix explicit pie responsiveness
 * round audio feature avgs
 * API context request timeout (allow a few minutes)
 * Upper cap on playlist size, i.e. bail after 2k tracks/N pages?
 * Persist playlist in URL (and cache result for a period of time server-side?)
-* Images for playlist & min/max tracks
 * Playlist input tooltip
 * Visualisations
   * Key/tempo vs valence 

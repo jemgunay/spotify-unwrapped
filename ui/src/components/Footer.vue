@@ -42,7 +42,7 @@
 </template>
 
 <script>
-import {Green} from "@/components/helpers/colours";
+import {Green} from "@/helpers/colours";
 
 export default {
   name: 'Footer',
