@@ -1,5 +1,5 @@
 <template>
-  <v-col md="5" offset-md="1" sm="12">
+  <v-col cols="8" offset="2" md="5" offset-md="1">
     <h3 class="section-heading">Explicit vs Non-Explicit Lyrics</h3>
 
     <!-- explicit lyrics pie chart -->
@@ -16,7 +16,7 @@
 <script>
 import {Pie} from 'vue-chartjs/legacy'
 import {ArcElement, CategoryScale, Chart as ChartJS, Legend, Title, Tooltip} from 'chart.js'
-import {Green, Red} from '@/components/helpers/colours'
+import {Green, Red} from '@/helpers/colours'
 
 ChartJS.register(Title, Tooltip, Legend, ArcElement, CategoryScale)
 

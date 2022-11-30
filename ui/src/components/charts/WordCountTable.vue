@@ -1,9 +1,9 @@
 <template>
-  <v-col md="5" sm="12">
-    <h3 class="section-heading">Common Words in Track Titles</h3>
+  <v-col md="5" cols="12">
+    <h3 class="section-heading">Common Track Title Words</h3>
 
     <!-- title word count stats table -->
-    <v-simple-table dense class="scrollable-table">
+    <v-simple-table dense class="scrollable-container">
       <template v-slot:default>
         <thead>
         <tr class="text-left">
@@ -27,7 +27,7 @@
 
 <script>
 export default {
-  name: 'WordCountStats',
+  name: 'WordCountTable',
   props: {
     topTitleWords: {
       type: Object,
@@ -39,9 +39,8 @@ export default {
 }
 </script>
 
-<style>
-.scrollable-table {
-  max-height: 70vh;
-  overflow: auto;
+<style scoped>
+.scrollable-container {
+  max-height: 35vw;
 }
 </style>

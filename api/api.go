@@ -5,16 +5,14 @@ import (
 	"errors"
 	"net/http"
 	"strconv"
-	"strings"
 	"time"
-	"unicode"
 
 	"github.com/gorilla/mux"
-	"github.com/jemgunay/spotify-unwrapped/config"
-	"github.com/jemgunay/spotify-unwrapped/stats"
 	"go.uber.org/zap"
 
+	"github.com/jemgunay/spotify-unwrapped/config"
 	"github.com/jemgunay/spotify-unwrapped/spotify"
+	"github.com/jemgunay/spotify-unwrapped/stats"
 )
 
 // API is an API which also performs track data collection and aggregation.
@@ -71,37 +69,22 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// count explicit vs explicit tracks
+		explicit := "non-explicit"
 		if track.TrackDetails.Explicit {
-			explicitMapping.Push("explicit")
-		} else {
-			explicitMapping.Push("non-explicit")
+			explicit = "explicit"
 		}
+		explicitMapping.Push(explicit)
 
 		// count unique sentence title words
-		for _, word := range strings.Split(track.TrackDetails.Name, " ") {
-			trimmed := strings.TrimSpace(word)
-			runes := []rune(trimmed)
-			switch len(trimmed) {
-			case 0:
-				continue
-			case 1:
-				char := runes[0]
-				if unicode.IsSymbol(char) || unicode.IsPunct(char) || unicode.IsNumber(char) {
-					continue
-				}
-				titleWordMapping.Push(trimmed)
-				continue
-			}
-
-			runes[0] = unicode.ToUpper(runes[0])
-			titleWordMapping.Push(string(runes))
-		}
+		stats.CountWordsInSentence(track.TrackDetails.Name, titleWordMapping)
 	}
 
 	releaseDates.CalcDate(trackIDLookup)
 	generation, err := stats.GetGeneration(releaseDates.Mean.DateYear())
 	if err != nil {
-		a.logger.Error("failed to determine playlist generation", zap.Error(err))
+		// don't error out
+		a.logger.Error("failed to determine playlist generation", zap.Error(err),
+			zap.Int("avg_year", releaseDates.Mean.DateYear()))
 	}
 
 	// bulk fetch audio feature data for each track in playlist
@@ -113,14 +96,7 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// aggregate track data for each stat
-	var (
-		energy           stats.Group
-		danceability     stats.Group
-		valence          stats.Group
-		acousticness     stats.Group
-		speechiness      stats.Group
-		instrumentalness stats.Group
-	)
+	var energy, danceability, valence, acousticness, speechiness, instrumentalness, liveness stats.Group
 	for _, feature := range audioFeatures {
 		energy.Push(feature.ID, feature.Energy)
 		danceability.Push(feature.ID, feature.Danceability)
@@ -128,6 +104,7 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 		acousticness.Push(feature.ID, feature.Acousticness)
 		speechiness.Push(feature.ID, feature.Speechiness)
 		instrumentalness.Push(feature.ID, feature.Instrumentalness)
+		liveness.Push(feature.ID, feature.Liveness)
 	}
 
 	// perform final calculations on each stat and lookup track names
@@ -139,11 +116,16 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 	acousticness.Calc(trackIDLookup, toPercentage)
 	speechiness.Calc(trackIDLookup, toPercentage)
 	instrumentalness.Calc(trackIDLookup, toPercentage)
+	liveness.Calc(trackIDLookup, toPercentage)
 
 	// generate final output payload
 	statsPayload := map[string]interface{}{
-		"playlist_name": playlistData.Name,
-		"owner_name":    playlistData.Owner.DisplayName,
+		"metadata": map[string]interface{}{
+			"name":        playlistData.Name,
+			"owner":       playlistData.Owner.DisplayName,
+			"image":       playlistData.Images.First(),
+			"track_count": playlistData.Tracks.Total,
+		},
 		"stats": map[string]interface{}{
 			"raw": map[string]interface{}{
 				"popularity":       popularity,
@@ -153,6 +135,7 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 				"acousticness":     acousticness,
 				"speechiness":      speechiness,
 				"instrumentalness": instrumentalness,
+				"liveness":         liveness,
 				"releaseDates":     releaseDates,
 			},
 			"explicitness": explicitMapping,

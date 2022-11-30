@@ -8,15 +8,14 @@ A web app for visualising Spotify playlist data.
 * Track release year bar chart
 * Playlist average age & its generation (is your playlist a Boomer, Zoomer, etc)
 * Average track audio features polar chart
+  * Acousticness
+  * Danceability
+  * Energy
+  * Instrumentalness
+  * Speechiness
+  * Liveness
+  * Valence (positive/negative)
 * Average track popularity doughnut chart
-* General track audio feature stats table with averages
-  * acousticness
-  * danceability
-  * energy
-  * instrumentalness
-  * popularity
-  * speechiness
-  * valence (positive/negative)
 
 ## Usage
 
@@ -30,11 +29,10 @@ npm run serve
 
 ## TODO
 
-* Deploy to AWS
-* Context API request timeout
-* Upper cap on playlist size, i.e. bail after 2k tracks/N pages?
+* Fix explicit pie responsiveness
+* round audio feature avgs
+* API context request timeout (allow a few minutes)
 * Persist playlist in URL (and cache result for a period of time server-side?)
-* Images for playlist & min/max tracks
 * Playlist input tooltip
 * Visualisations
   * Key/tempo vs valence 

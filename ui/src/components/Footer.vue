@@ -1,8 +1,7 @@
 <template>
-  <v-card height="200px">
+  <v-card class="mt-10">
     <v-footer
         padless
-        absolute
     >
       <v-card
           flat
@@ -42,7 +41,7 @@
 </template>
 
 <script>
-import {Green} from "@/components/helpers/colours";
+import {Green} from "@/helpers/colours";
 
 export default {
   name: 'Footer',

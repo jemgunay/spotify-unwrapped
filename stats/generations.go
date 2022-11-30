@@ -21,7 +21,7 @@ func GetGeneration(year int) (Generation, error) {
 		return Generation{}, errors.New("year too low to identify generation")
 	}
 	for _, g := range generations {
-		if year > g.Lower && year < g.Upper {
+		if year >= g.Lower && year <= g.Upper {
 			g.Year = year
 			g.Age = time.Now().Year() - year
 			return g, nil

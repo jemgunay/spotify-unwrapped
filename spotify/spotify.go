@@ -11,9 +11,10 @@ import (
 	"strings"
 	"time"
 
+	"go.uber.org/zap"
+
 	"github.com/jemgunay/spotify-unwrapped/config"
 	"github.com/jemgunay/spotify-unwrapped/spotify/auth"
-	"go.uber.org/zap"
 )
 
 // Requester wraps the Spotify HTTP REST API.
@@ -80,13 +81,12 @@ func (r *Requester) authenticate() (string, time.Time, error) {
 	return authBody.AccessToken, expiry, nil
 }
 
-const apiURL = "https://api.spotify.com/v1/"
-
 // Playlist represents a playlist of tracks.
 type Playlist struct {
 	Name   string `json:"name"`
 	Owner  Owner  `json:"owner"`
 	Tracks Tracks `json:"tracks"`
+	Images Images `json:"images"`
 }
 
 // Owner represents a playlist owner.
@@ -98,6 +98,7 @@ type Owner struct {
 type Tracks struct {
 	TrackItems []TrackItem `json:"items"`
 	NextURL    string      `json:"next"`
+	Total      int         `json:"total"`
 }
 
 // TrackItem represents the details for a given track.
@@ -150,6 +151,23 @@ type Artist struct {
 // Album represents a single album.
 type Album struct {
 	ReleaseDate string `json:"release_date"`
+	Images      Images `json:"images"`
+}
+
+// Images represents the set of different resolution images.
+type Images []Image
+
+// First returns the first image in the list.
+func (i Images) First() string {
+	if len(i) == 0 {
+		return ""
+	}
+	return i[0].URL
+}
+
+// Image represents an album or playlist cover image.
+type Image struct {
+	URL string `json:"url"`
 }
 
 // ErrNotFound indicates that the requested resource does not exist.
@@ -157,6 +175,12 @@ var (
 	ErrNotFound     = errors.New("not found")
 	ErrUnauthorised = errors.New("unauthorised")
 	ErrRateLimited  = errors.New("rate limited")
+)
+
+const (
+	apiURL = "https://api.spotify.com/v1/"
+	// only the first ~3000 tracks of a playlist will be processed
+	maxPlaylistPages = 30
 )
 
 // GetPlaylist gets all required data for the given playlist ID.
@@ -168,7 +192,7 @@ func (r *Requester) GetPlaylist(id string) (Playlist, error) {
 	}
 
 	// get the rest of the paginated playlist tracks
-	for {
+	for i := 0; i < maxPlaylistPages; i++ {
 		if playlist.Tracks.NextURL == "" {
 			return playlist, nil
 		}
@@ -181,6 +205,9 @@ func (r *Requester) GetPlaylist(id string) (Playlist, error) {
 		playlist.Tracks.TrackItems = append(playlist.Tracks.TrackItems, playlistTracks.TrackItems...)
 		playlist.Tracks.NextURL = playlistTracks.NextURL
 	}
+
+	// we reached maximum pages
+	return playlist, nil
 }
 
 func (r *Requester) getPlaylist(id string) (Playlist, error) {
@@ -224,8 +251,6 @@ type AudioFeatures struct {
 	Type             string  `json:"type"`
 	ID               string  `json:"id"`
 	URI              string  `json:"uri"`
-	TrackHref        string  `json:"track_href"`
-	AnalysisURL      string  `json:"analysis_url"`
 	DurationMs       int     `json:"duration_ms"`
 	TimeSignature    int     `json:"time_signature"`
 }

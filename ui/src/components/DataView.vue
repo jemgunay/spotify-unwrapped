@@ -1,5 +1,5 @@
 <template>
-  <v-row class="mx-10">
+  <v-row class="mx-10" style="min-height: 70vh">
     <v-col cols="12" md="4" offset-md="4" sm="8" offset-sm="2">
       <v-text-field
           label="Playlist ID"
@@ -14,48 +14,59 @@
       </v-text-field>
     </v-col>
 
-    <v-col sm="12">
+    <v-col cols="12">
       <p v-if="dataError" class="text-center">{{ dataError }}</p>
       <p v-else-if="loading" class="text-center">Unwrapping playlist <strong>{{ playlistID }}</strong>...</p>
 
-      <v-row v-if="playlistName" id="data-container">
+      <v-row v-if="playlistMetadata">
 
-        <v-col sm="12">
-          <!-- playlist/owner title -->
-          <h1 class="section-heading">{{ playlistName }} by {{ playlistOwner }}</h1>
+        <!-- playlist/owner title & playlist cover image -->
+        <v-col cols="12" sm="8" class="playlist-header">
+          <v-img
+              :src="playlistMetadata['image']"
+              aspect-ratio="1"
+              max-width="65"
+              max-height="65"
+          ></v-img>
+          <div class="ml-3">
+            <h2 class="section-heading">{{ playlistMetadata['name'] }}</h2>
+            <h3>by {{ playlistMetadata['owner'] }}</h3>
+          </div>
+        </v-col>
+        <v-col cols="12" sm="4" class="playlist-header-reverse">
+          <h3>{{ playlistMetadata['track_count'] }} Tracks</h3>
         </v-col>
 
-        <v-col sm="12">
+        <v-col cols="12">
           <v-divider></v-divider>
         </v-col>
 
         <ReleaseDateChart :releaseDateData="releaseDateStats"/>
         <PlaylistGeneration :rawStatsData="rawPlaylistStats" :generationDetails="generationDetails"/>
 
-        <v-col sm="12">
+        <v-col cols="12">
           <v-divider></v-divider>
         </v-col>
 
-        <WordCountStats :topTitleWords="topTitleWords"/>
+        <WordCountTable :topTitleWords="topTitleWords"/>
         <ExplicitPieChart :explicitnessData="explicitnessStats"/>
 
-        <v-col sm="12">
+        <v-col cols="12">
           <v-divider></v-divider>
         </v-col>
 
-        <PolarAudioFeatures :rawStatsData="rawPlaylistStats"/>
+        <AudioFeaturesPolar :rawStatsData="rawPlaylistStats"/>
 
-        <v-col sm="12">
+        <v-col cols="12">
           <v-divider></v-divider>
         </v-col>
 
         <PopularityDoughnut :rawStatsData="rawPlaylistStats"/>
 
-        <v-col sm="12">
-          <v-divider></v-divider>
-        </v-col>
-
-        <RawStatsTable :rawStatsData="rawPlaylistStats"/>
+        <!--<v-col cols="12">-->
+        <!--  <v-divider></v-divider>-->
+        <!--</v-col>-->
+        <!--<RawStatsTable :rawStatsData="rawPlaylistStats"/>-->
 
       </v-row>
     </v-col>
@@ -67,10 +78,10 @@ import axios from "axios";
 
 import ReleaseDateChart from "@/components/charts/ReleaseDateChart";
 import PlaylistGeneration from "@/components/charts/PlaylistGeneration";
-import WordCountStats from "@/components/charts/WordCountStats";
+import WordCountTable from "@/components/charts/WordCountTable";
 import ExplicitPieChart from "@/components/charts/ExplicitPieChart";
-import PolarAudioFeatures from "@/components/charts/PolarAudioFeatures";
-import RawStatsTable from "@/components/charts/RawStatsTable";
+import AudioFeaturesPolar from "@/components/charts/AudioFeaturesPolar";
+// import RawStatsTable from "@/components/charts/RawStatsTable";
 import PopularityDoughnut from "@/components/charts/PopularityDoughnut";
 
 export default {
@@ -78,30 +89,29 @@ export default {
   components: {
     ReleaseDateChart,
     PlaylistGeneration,
-    WordCountStats,
+    WordCountTable,
     ExplicitPieChart,
-    PolarAudioFeatures,
+    AudioFeaturesPolar,
     PopularityDoughnut,
-    RawStatsTable
+    // RawStatsTable
   },
   data() {
     return {
       apiHost: process.env.VUE_APP_API_HOST,
       dataError: null,
       loading: false,
-      playlistID: "1AXy6ag2d0ag8DEdOE7kWm",
+      playlistID: "1KnTiUzSU2HlEtejfXWPo2",
       lastPlaylistID: null,
       playlistInputRules: [
         value => !!value || 'Required.',
         value => this.isPlaylistValid(value),
       ],
-      playlistName: null,
-      playlistOwner: null,
-      rawPlaylistStats: {},
-      explicitnessStats: {},
-      releaseDateStats: {},
-      generationDetails: {},
-      topTitleWords: {}
+      playlistMetadata: null,
+      rawPlaylistStats: null,
+      explicitnessStats: null,
+      releaseDateStats: null,
+      generationDetails: null,
+      topTitleWords: null
     }
   },
   created() {
@@ -122,8 +132,7 @@ export default {
       axios
           .get(this.apiHost + "/api/v1/playlists/" + this.playlistID)
           .then(response => {
-            this.playlistName = response.data["playlist_name"];
-            this.playlistOwner = response.data["owner_name"];
+            this.playlistMetadata = response.data["metadata"];
             this.rawPlaylistStats = response.data["stats"]["raw"];
             this.explicitnessStats = response.data["stats"]["explicitness"];
             this.releaseDateStats = response.data["stats"]["release_dates"];
@@ -172,15 +181,19 @@ export default {
 </script>
 
 <style>
-/* force show scroll bars on OSx */
-::-webkit-scrollbar {
-  -webkit-appearance: none;
-  width: 7px;
+.playlist-header {
+  display: flex;
 }
 
-::-webkit-scrollbar-thumb {
-  border-radius: 4px;
-  background-color: rgba(0, 0, 0, .5);
-  box-shadow: 0 0 1px rgba(255, 255, 255, .5);
+.playlist-header-reverse {
+  display: flex;
+  flex-direction: row-reverse;
+  text-align: right;
+  align-items: flex-end;
+}
+
+.playlist-header, .playlist-header-reverse h3 {
+  color: rgba(0, 0, 0, 0.71);
+  font-style: italic;
 }
 </style>
