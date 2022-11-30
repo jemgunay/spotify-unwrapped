@@ -83,7 +83,8 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 	generation, err := stats.GetGeneration(releaseDates.Mean.DateYear())
 	if err != nil {
 		// don't error out
-		a.logger.Error("failed to determine playlist generation", zap.Error(err))
+		a.logger.Error("failed to determine playlist generation", zap.Error(err),
+			zap.Int("avg_year", releaseDates.Mean.DateYear()))
 	}
 
 	// bulk fetch audio feature data for each track in playlist
@@ -119,9 +120,12 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 
 	// generate final output payload
 	statsPayload := map[string]interface{}{
-		"playlist_name":  playlistData.Name,
-		"owner_name":     playlistData.Owner.DisplayName,
-		"playlist_image": playlistData.Images.First(),
+		"metadata": map[string]interface{}{
+			"name":        playlistData.Name,
+			"owner":       playlistData.Owner.DisplayName,
+			"image":       playlistData.Images.First(),
+			"track_count": playlistData.Tracks.Total,
+		},
 		"stats": map[string]interface{}{
 			"raw": map[string]interface{}{
 				"popularity":       popularity,

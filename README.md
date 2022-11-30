@@ -29,11 +29,9 @@ npm run serve
 
 ## TODO
 
-* Fix playlist name + image display
 * Fix explicit pie responsiveness
 * round audio feature avgs
 * API context request timeout (allow a few minutes)
-* Upper cap on playlist size, i.e. bail after 2k tracks/N pages?
 * Persist playlist in URL (and cache result for a period of time server-side?)
 * Playlist input tooltip
 * Visualisations

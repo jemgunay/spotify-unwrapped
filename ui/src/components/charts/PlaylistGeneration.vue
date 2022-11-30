@@ -57,7 +57,7 @@ export default {
 
 <style>
 .generation-summary {
-  color: rgba(0, 0, 0, 0.6);
+  color: #3c3c3c;
   font-size: 13px;
 }
 </style>

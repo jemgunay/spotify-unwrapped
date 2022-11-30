@@ -1,6 +1,6 @@
 <template>
   <v-col md="6" cols="12">
-    <h3 class="section-heading">Track Release Dates</h3>
+    <h3 class="section-heading">Track Releases</h3>
 
     <!-- release date chart -->
     <Bar v-if="this.releaseDateData"

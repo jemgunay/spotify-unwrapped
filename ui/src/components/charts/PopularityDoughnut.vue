@@ -89,6 +89,10 @@ export default {
         return Orange;
       }
       return Green;
+    },
+    // TODO: overlay this stat on doughnut
+    roundedPopularity() {
+      return ~~this.rawStatsData["popularity"]["avg"]["value"]
     }
   }
 }

@@ -98,6 +98,7 @@ type Owner struct {
 type Tracks struct {
 	TrackItems []TrackItem `json:"items"`
 	NextURL    string      `json:"next"`
+	Total      int         `json:"total"`
 }
 
 // TrackItem represents the details for a given track.
@@ -153,8 +154,10 @@ type Album struct {
 	Images      Images `json:"images"`
 }
 
+// Images represents the set of different resolution images.
 type Images []Image
 
+// First returns the first image in the list.
 func (i Images) First() string {
 	if len(i) == 0 {
 		return ""
@@ -162,6 +165,7 @@ func (i Images) First() string {
 	return i[0].URL
 }
 
+// Image represents an album or playlist cover image.
 type Image struct {
 	URL string `json:"url"`
 }
@@ -173,6 +177,12 @@ var (
 	ErrRateLimited  = errors.New("rate limited")
 )
 
+const (
+	apiURL = "https://api.spotify.com/v1/"
+	// only the first ~3000 tracks of a playlist will be processed
+	maxPlaylistPages = 30
+)
+
 // GetPlaylist gets all required data for the given playlist ID.
 // https://developer.spotify.com/documentation/web-api/reference/#/operations/get-playlist
 func (r *Requester) GetPlaylist(id string) (Playlist, error) {
@@ -182,7 +192,7 @@ func (r *Requester) GetPlaylist(id string) (Playlist, error) {
 	}
 
 	// get the rest of the paginated playlist tracks
-	for {
+	for i := 0; i < maxPlaylistPages; i++ {
 		if playlist.Tracks.NextURL == "" {
 			return playlist, nil
 		}
@@ -195,9 +205,10 @@ func (r *Requester) GetPlaylist(id string) (Playlist, error) {
 		playlist.Tracks.TrackItems = append(playlist.Tracks.TrackItems, playlistTracks.TrackItems...)
 		playlist.Tracks.NextURL = playlistTracks.NextURL
 	}
-}
 
-const apiURL = "https://api.spotify.com/v1/"
+	// we reached maximum pages
+	return playlist, nil
+}
 
 func (r *Requester) getPlaylist(id string) (Playlist, error) {
 	reqURL := apiURL + "playlists/" + id

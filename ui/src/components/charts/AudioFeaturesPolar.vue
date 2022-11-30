@@ -14,7 +14,7 @@
 
     <!-- stat panels -->
     <v-col md="6" cols="12">
-      <div class="scrollable-container">
+      <div class="scrollable-container mt-md-12">
         <v-row>
           <v-col cols="12" sm="6" v-for="trackData in trackStatMappings" :key="trackData['name']">
             <TrackStatPanel
@@ -117,7 +117,7 @@ export default {
 
 <style scoped>
 .scrollable-container {
-  max-height: 50vw;
+  max-height: 45vw;
   width: 100%;
   overflow-x: hidden;
   padding-right: 5px;
