@@ -29,10 +29,11 @@ npm run serve
 
 ## TODO
 
-* Fix explicit pie responsiveness
+* Fix weird track title word trailing punctuation + sort alphabetically as well as by count
 * round audio feature avgs
 * API context request timeout (allow a few minutes)
-* Persist playlist in URL (and cache result for a period of time server-side?)
+* Persist playlist in URL
+* Cache result for a period of time server-side (memcached, TTL 5 mins)
 * Playlist input tooltip
 * Visualisations
   * Key/tempo vs valence 

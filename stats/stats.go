@@ -173,6 +173,12 @@ func (p *OrderedKVPair) Less(i int, j int) bool {
 		i, j = j, i
 	}
 	if p.sortBy == SortKey {
+		if p.Keys[i] == p.Keys[j] {
+			return p.Values[i] < p.Values[j]
+		}
+		return p.Keys[i] < p.Keys[j]
+	}
+	if p.Values[i] == p.Values[j] {
 		return p.Keys[i] < p.Keys[j]
 	}
 	return p.Values[i] < p.Values[j]

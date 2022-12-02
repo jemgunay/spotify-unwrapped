@@ -19,6 +19,14 @@ func CountWordsInSentence(sentence string, mapping Mapping) {
 			continue
 		}
 
+		// truncate weird trailing punctuation
+		if len(trimmed) < 1 {
+			lastChar := runes[len(runes)-1]
+			if unicode.IsSymbol(lastChar) || unicode.IsPunct(lastChar) || unicode.IsNumber(lastChar) {
+				runes = runes[:len(runes)-1]
+			}
+		}
+
 		runes[0] = unicode.ToUpper(char)
 		word := string(runes)
 		if shouldExclude(word) {
