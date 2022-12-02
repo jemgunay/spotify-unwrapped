@@ -22,7 +22,7 @@
         </v-row>
       </v-col>
 
-      <v-col md="6" cols="12">
+      <v-col cols="10" offset="1" md="6" offset-md="0">
         <!-- popularity doughnut chart -->
         <Doughnut v-if="this.rawStatsData"
                   :chart-options="chartOptions"

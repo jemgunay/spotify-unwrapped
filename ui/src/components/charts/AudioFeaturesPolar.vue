@@ -1,15 +1,21 @@
 <template>
   <v-row>
-    <v-col cols="8" offset="2" md="6" offset-md="0">
-      <h3 class="section-heading">Audio Feature Averages</h3>
+    <v-col cols="12" md="6">
+      <v-row>
+        <v-col cols="12">
+          <h3 class="section-heading">Audio Feature Averages</h3>
+        </v-col>
 
-      <!-- raw audio feature stat averages -->
-      <PolarArea v-if="rawStatsData"
-                 :chart-options="chartOptions"
-                 :chart-data="chartData"
-                 chart-id="polar-stats-chart"
-                 dataset-id-key="polar-stats"
-      />
+        <v-col cols="10" offset="1">
+          <!-- raw audio feature stat averages -->
+          <PolarArea v-if="rawStatsData"
+                     :chart-options="chartOptions"
+                     :chart-data="chartData"
+                     chart-id="polar-stats-chart"
+                     dataset-id-key="polar-stats"
+          />
+        </v-col>
+      </v-row>
     </v-col>
 
     <!-- stat panels -->
