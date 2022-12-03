@@ -48,8 +48,14 @@
           <v-divider></v-divider>
         </v-col>
 
-        <WordCountTable :topTitleWords="topTitleWords"/>
-        <ExplicitPieChart :explicitnessData="explicitnessStats"/>
+
+        <v-col md="5" cols="12">
+          <h3 class="section-heading">Common Track Title Words</h3>
+          <WordCountTable :topTitleWords="topTitleWords"/>
+        </v-col>
+        <v-col cols="12" md="7">
+          <ExplicitPieChart :explicitnessData="explicitnessStats"/>
+        </v-col>
 
         <v-col cols="12">
           <v-divider></v-divider>

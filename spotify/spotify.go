@@ -367,6 +367,6 @@ func (r *Requester) logAsDebugCurl(req *http.Request) {
 	u := req.URL.String()
 	method := req.Method
 	auth := req.Header.Get("Authorization")
-	curl := fmt.Sprintf("curl -i X%s '%s' -H 'Authorization: %s'", method, u, auth)
+	curl := fmt.Sprintf("curl -i -X%s '%s' -H 'Authorization: %s'", method, u, auth)
 	r.logger.Debug(curl)
 }
