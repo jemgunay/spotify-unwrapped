@@ -7,16 +7,24 @@ import (
 	"github.com/jemgunay/spotify-unwrapped/spotify"
 )
 
+// Detail represents a mapping of a track to its stat value.
 type Detail struct {
 	id         string
 	Name       string  `json:"name,omitempty"`
 	CoverImage string  `json:"cover_image,omitempty"`
+	SpotifyURL string  `json:"spotify_url,omitempty"`
 	Value      float64 `json:"value"`
 	Date       string  `json:"date,omitempty"`
 }
 
+func (d *Detail) Set(name, image, spotifyURL string) {
+	d.Name = name
+	d.CoverImage = image
+	d.SpotifyURL = spotifyURL
+}
+
 // DateYear determines the year from the date value.
-func (d Detail) DateYear() int {
+func (d *Detail) DateYear() int {
 	return time.Unix(int64(d.Value), 0).Year()
 }
 
@@ -61,10 +69,8 @@ func WithMultiplier(multiplier float64) GroupCalcOpt {
 func (g *Group) Calc(lookup map[string]spotify.TrackDetails, opts ...GroupCalcOpt) {
 	minTrack := lookup[g.Min.id]
 	maxTrack := lookup[g.Max.id]
-	g.Min.Name = minTrack.GetTrackString()
-	g.Min.CoverImage = minTrack.Album.Images.First()
-	g.Max.Name = maxTrack.GetTrackString()
-	g.Max.CoverImage = maxTrack.Album.Images.First()
+	g.Min.Set(minTrack.GetTrackString(), minTrack.Album.Images.First(), minTrack.ExternalURLs.Spotify)
+	g.Max.Set(maxTrack.GetTrackString(), maxTrack.Album.Images.First(), maxTrack.ExternalURLs.Spotify)
 	if g.count > 0 {
 		g.Mean.Value = g.sum / g.count
 	}

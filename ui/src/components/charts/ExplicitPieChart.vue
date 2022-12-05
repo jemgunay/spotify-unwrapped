@@ -1,22 +1,20 @@
 <template>
-  <v-col cols="12" md="7">
-    <v-row>
-      <v-col cols="12">
-        <h3 class="section-heading">Explicit vs Non-Explicit Lyrics</h3>
-      </v-col>
+  <v-row>
+    <v-col cols="12">
+      <h3 class="section-heading">Explicit vs Non-Explicit Lyrics</h3>
+    </v-col>
 
-      <v-col cols="10" offset="1">
-        <!-- explicit lyrics pie chart -->
-        <Pie v-if="this.explicitnessData"
-             :chart-options="chartOptions"
-             :chart-data="chartData"
-             chart-id="explicitness-chart"
-             dataset-id-key="explicitness"
-             id="explicit-pie"
-        />
-      </v-col>
-    </v-row>
-  </v-col>
+    <v-col cols="8" offset="2">
+      <!-- explicit lyrics pie chart -->
+      <Pie v-if="this.explicitnessData"
+           :chart-options="chartOptions"
+           :chart-data="chartData"
+           chart-id="explicitness-chart"
+           dataset-id-key="explicitness"
+           id="explicit-pie"
+      />
+    </v-col>
+  </v-row>
 </template>
 
 <script>

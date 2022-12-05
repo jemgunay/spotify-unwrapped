@@ -17,6 +17,7 @@
             :track-name="rawStatsData['releaseDates']['min']['name']"
             :track-date="rawStatsData['releaseDates']['min']['date']"
             :cover-image="rawStatsData['releaseDates']['min']['cover_image']"
+            :spotify-url="rawStatsData['releaseDates']['min']['spotify_url']"
         />
       </v-col>
       <v-col cols="12" sm="6">
@@ -25,6 +26,7 @@
             :track-name="rawStatsData['releaseDates']['max']['name']"
             :track-date="rawStatsData['releaseDates']['max']['date']"
             :cover-image="rawStatsData['releaseDates']['max']['cover_image']"
+            :spotify-url="rawStatsData['releaseDates']['max']['spotify_url']"
         />
       </v-col>
     </v-row>

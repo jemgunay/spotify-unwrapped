@@ -10,6 +10,7 @@
                 stat-title="Least Popular"
                 :track-name="rawStatsData['popularity']['min']['name']"
                 :cover-image="rawStatsData['popularity']['min']['cover_image']"
+                :spotify-url="rawStatsData['popularity']['min']['spotify_url']"
             />
           </v-col>
           <v-col cols="12" sm="6">
@@ -17,6 +18,7 @@
                 stat-title="Most Popular"
                 :track-name="rawStatsData['popularity']['max']['name']"
                 :cover-image="rawStatsData['popularity']['max']['cover_image']"
+                :spotify-url="rawStatsData['popularity']['max']['spotify_url']"
             />
           </v-col>
         </v-row>
