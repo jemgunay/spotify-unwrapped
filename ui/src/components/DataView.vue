@@ -27,9 +27,13 @@
               aspect-ratio="1"
               max-width="65"
               max-height="65"
+              v-ripple
+              @click="openSpotifyPlaylistURL"
+              style="cursor: pointer;"
           ></v-img>
           <div class="ml-3">
-            <h2 class="section-heading">{{ playlistMetadata['name'] }}</h2>
+            <h2 class="section-heading" @click="openSpotifyPlaylistURL" style="cursor: pointer;">
+              {{ playlistMetadata['name'] }}</h2>
             <h3>by {{ playlistMetadata['owner'] }}</h3>
           </div>
         </v-col>
@@ -181,6 +185,12 @@ export default {
       if ((value || '').length !== playlistIDLength) return "Invalid Spotify playlist URL provided.";
       this.playlistID = value;
       return true;
+    },
+    openSpotifyPlaylistURL() {
+      if (this.playlistMetadata["spotify_url"] == null) {
+        return;
+      }
+      window.open(this.playlistMetadata["spotify_url"], '_blank');
     }
   },
 }

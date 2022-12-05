@@ -1,6 +1,11 @@
 <template>
   <v-hover v-slot="{ hover }">
-    <v-card outlined :elevation="hover ? 2 : 0">
+    <v-card
+        outlined
+        :elevation="hover ? 3 : 0"
+        v-ripple
+        @click="openSpotifyURL"
+    >
       <v-row align="center" justify="center">
         <v-col cols="8" class="pa-2 list-container">
           <v-list-item three-line>
@@ -50,6 +55,20 @@ export default {
       default() {
         return "placeholder.jpg"
       }
+    },
+    spotifyUrl: {
+      type: String,
+      default() {
+        return null
+      }
+    }
+  },
+  methods: {
+    openSpotifyURL() {
+      if (this.spotifyUrl == null) {
+        return;
+      }
+      window.open(this.spotifyUrl, '_blank');
     }
   }
 }

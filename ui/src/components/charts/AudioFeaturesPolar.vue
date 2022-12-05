@@ -27,6 +27,7 @@
                 :stat-title="trackData['name']"
                 :track-name="trackData['track']['name']"
                 :cover-image="trackData['track']['cover_image']"
+                :spotify-url="trackData['track']['spotify_url']"
             />
           </v-col>
         </v-row>

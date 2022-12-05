@@ -124,6 +124,7 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 			"name":        playlistData.Name,
 			"owner":       playlistData.Owner.DisplayName,
 			"image":       playlistData.Images.First(),
+			"spotify_url": playlistData.ExternalURLs.Spotify,
 			"track_count": playlistData.Tracks.Total,
 		},
 		"stats": map[string]interface{}{

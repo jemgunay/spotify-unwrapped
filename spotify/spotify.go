@@ -83,10 +83,13 @@ func (r *Requester) authenticate() (string, time.Time, error) {
 
 // Playlist represents a playlist of tracks.
 type Playlist struct {
-	Name   string `json:"name"`
-	Owner  Owner  `json:"owner"`
-	Tracks Tracks `json:"tracks"`
-	Images Images `json:"images"`
+	Name         string `json:"name"`
+	Owner        Owner  `json:"owner"`
+	Tracks       Tracks `json:"tracks"`
+	Images       Images `json:"images"`
+	ExternalURLs struct {
+		Spotify string `json:"spotify"`
+	} `json:"external_urls"`
 }
 
 // Owner represents a playlist owner.
@@ -108,12 +111,15 @@ type TrackItem struct {
 
 // TrackDetails represents the details of a track.
 type TrackDetails struct {
-	ID               string   `json:"id"`
-	Name             string   `json:"name"`
-	Popularity       float64  `json:"popularity"` // 0-100
-	Artists          []Artist `json:"artists"`
-	Album            Album    `json:"album"`
-	Explicit         bool     `json:"explicit"`
+	ID           string   `json:"id"`
+	Name         string   `json:"name"`
+	Popularity   float64  `json:"popularity"` // 0-100
+	Artists      []Artist `json:"artists"`
+	Album        Album    `json:"album"`
+	Explicit     bool     `json:"explicit"`
+	ExternalURLs struct {
+		Spotify string `json:"spotify"`
+	} `json:"external_urls"`
 	artistsFormatted string
 	trackFormatted   string
 }
