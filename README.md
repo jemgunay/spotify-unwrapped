@@ -1,21 +1,17 @@
 # Spotify Unwrapped
 
-A web app for visualising Spotify playlist data. 
+A web app for visualising Spotify playlist data.
 
-## Features
+## Screenshots
 
-* Explicit lyric pie chart
-* Track release year bar chart
-* Playlist average age & its generation (is your playlist a Boomer, Zoomer, etc)
-* Average track audio features polar chart
-  * Acousticness
-  * Danceability
-  * Energy
-  * Instrumentalness
-  * Speechiness
-  * Liveness
-  * Valence (positive/negative)
-* Average track popularity doughnut chart
+<p align="center">
+  <img src="screenshots/1.png" width="40%"/>
+  <img src="screenshots/4.png" width="40%"/>
+</p>
+<p align="center">
+  <img src="screenshots/2.png" width="40%"/>
+  <img src="screenshots/3.png" width="40%"/>
+</p>
 
 ## Usage
 
@@ -29,16 +25,13 @@ npm run serve
 
 ## TODO
 
-* Fix weird track title word trailing punctuation + sort alphabetically as well as by count
-* round audio feature avgs
-* API context request timeout (allow a few minutes)
-* Persist playlist in URL
+* Add tooltips to explain audio features
+* Round audio feature averages
+* Persist playlist ID in URL
 * Cache result for a period of time server-side (memcached, TTL 5 mins)
-* Playlist input tooltip
-* Visualisations
-  * Key/tempo vs valence
-  * Pie chart of artist genre frequency in a playlist
-  * Languages/country
-  * Track duration
-  * Loudness
-  * Popularity & artist followers
+* Visualisation ideas
+    * Key/tempo vs valence
+    * Pie chart of artist genre frequency in a playlist
+    * Languages/country
+    * Track duration
+    * Loudness
