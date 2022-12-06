@@ -36,12 +36,9 @@ npm run serve
 * Cache result for a period of time server-side (memcached, TTL 5 mins)
 * Playlist input tooltip
 * Visualisations
-  * Key/tempo vs valence 
-  * Get most/least energetic tune in a playlist
+  * Key/tempo vs valence
   * Pie chart of artist genre frequency in a playlist
   * Languages/country
-  * Words in title
   * Track duration
   * Loudness
   * Popularity & artist followers
-  * Most common artist

@@ -1,5 +1,5 @@
 <template>
-  <v-col md="6" cols="12">
+  <v-col cols="12" md="6">
     <!-- generations text -->
     <p class="mb-3 mt-md-12">Your playlist's average track age is <b>{{ generationDetails["age"] }} years old</b> ({{
         generationDetails["year"]

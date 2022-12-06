@@ -36,6 +36,16 @@ h3.section-heading {
   color: #3c3c3c;
 }
 
+.clickable {
+  cursor: pointer;
+  opacity: 1;
+  transition: opacity 0.3s;
+}
+
+.clickable:hover {
+  opacity: 0.8;
+}
+
 /* force show scroll bars on OSx */
 .scrollable-container {
   overflow: auto;

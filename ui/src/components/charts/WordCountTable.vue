@@ -37,6 +37,7 @@ export default {
 
 <style scoped>
 .scrollable-container {
-  max-height: 35vw;
+  max-height: 38vw;
+  min-height: 250px;
 }
 </style>

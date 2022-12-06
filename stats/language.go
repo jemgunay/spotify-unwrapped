@@ -14,20 +14,21 @@ func CountWordsInSentence(sentence string, mapping Mapping) {
 		}
 
 		runes := []rune(trimmed)
-		char := runes[0]
-		if unicode.IsSymbol(char) || unicode.IsPunct(char) || unicode.IsNumber(char) {
+		// validate that first character is valid
+		firstChar := runes[0]
+		if isCharInvalid(firstChar) {
 			continue
 		}
 
-		// truncate weird trailing punctuation
-		if len(trimmed) < 1 {
+		// truncate weird words with trailing punctuation like closing brackets, etc
+		/*if len(runes) > 1 {
 			lastChar := runes[len(runes)-1]
-			if unicode.IsSymbol(lastChar) || unicode.IsPunct(lastChar) || unicode.IsNumber(lastChar) {
+			if isCharInvalid(lastChar) {
 				runes = runes[:len(runes)-1]
 			}
-		}
+		}*/
 
-		runes[0] = unicode.ToUpper(char)
+		runes[0] = unicode.ToUpper(firstChar)
 		word := string(runes)
 		if shouldExclude(word) {
 			continue
@@ -36,18 +37,28 @@ func CountWordsInSentence(sentence string, mapping Mapping) {
 	}
 }
 
-// words must be sentence-cased
+func isCharInvalid(char rune) bool {
+	return unicode.IsSymbol(char) || unicode.IsPunct(char) || unicode.IsNumber(char)
+}
+
+// filter boring words - words must be sentence-cased
 var exclusionList = map[string]struct{}{
-	"A":   {},
-	"An":  {},
-	"As":  {},
-	"At":  {},
-	"In":  {},
-	"It":  {},
-	"Of":  {},
-	"On":  {},
-	"The": {},
-	"To":  {},
+	"A":    {},
+	"An":   {},
+	"And":  {},
+	"As":   {},
+	"At":   {},
+	"Be":   {},
+	"For":  {},
+	"In":   {},
+	"Is":   {},
+	"It":   {},
+	"Of":   {},
+	"On":   {},
+	"So":   {},
+	"The":  {},
+	"To":   {},
+	"With": {},
 }
 
 func shouldExclude(word string) bool {

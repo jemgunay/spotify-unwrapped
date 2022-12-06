@@ -5,6 +5,7 @@
         :elevation="hover ? 3 : 0"
         v-ripple
         @click="openSpotifyURL"
+        class="clickable"
     >
       <v-row align="center" justify="center">
         <v-col cols="8" class="pa-2 list-container">
