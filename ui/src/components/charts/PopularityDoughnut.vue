@@ -26,6 +26,10 @@
 
       <v-col cols="10" offset="1" md="6" offset-md="0">
         <!-- popularity doughnut chart -->
+        <h1 class="doughnut-stat" :class="$vuetify.breakpoint.smAndDown ? 'sm' : 'md'"
+            :style="{'color': determineHealthColour}">
+          {{ this.roundedPopularity }}%
+        </h1>
         <Doughnut v-if="this.rawStatsData"
                   :chart-options="chartOptions"
                   :chart-data="chartData"
@@ -71,7 +75,6 @@ export default {
   computed: {
     chartData() {
       return {
-        // labels: ['Popularity'],
         datasets: [
           {
             backgroundColor: [this.determineHealthColour, '#d0d0d0'],
@@ -85,17 +88,37 @@ export default {
     },
     determineHealthColour() {
       let val = this.rawStatsData["popularity"]["avg"]["value"];
-      if (val < 33) {
+      if (val < 30) {
         return Red;
-      } else if (val < 66) {
+      } else if (val < 60) {
         return Orange;
       }
       return Green;
     },
-    // TODO: overlay this stat on doughnut
     roundedPopularity() {
-      return ~~this.rawStatsData["popularity"]["avg"]["value"]
+      return ~~this.rawStatsData["popularity"]["avg"]["value"];
     }
   }
 }
 </script>
+
+<style>
+.doughnut-stat {
+  height: 0;
+  width: 0;
+  text-shadow: 2px 2px 0px #1e7b52;
+  font-size: 9vw;
+  position: relative;
+}
+
+/* styles to handle dynamic scaling of the polar chart stat text based on breakpoints - its gross, but it works... */
+.doughnut-stat.md {
+  left: calc(33%);
+  top: calc(36%);
+}
+
+.doughnut-stat.sm {
+  left: calc(39%);
+  top: calc(41%);
+}
+</style>
