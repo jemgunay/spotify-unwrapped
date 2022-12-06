@@ -21,12 +21,12 @@ func CountWordsInSentence(sentence string, mapping Mapping) {
 		}
 
 		// truncate weird words with trailing punctuation like closing brackets, etc
-		/*if len(runes) > 1 {
+		if len(runes) > 1 {
 			lastChar := runes[len(runes)-1]
 			if isCharInvalid(lastChar) {
 				runes = runes[:len(runes)-1]
 			}
-		}*/
+		}
 
 		runes[0] = unicode.ToUpper(firstChar)
 		word := string(runes)
