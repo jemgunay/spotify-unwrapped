@@ -34,3 +34,4 @@ README.md
 config/*.json
 config/*.env
 config/*.sh
+screenshots/

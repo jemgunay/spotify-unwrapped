@@ -1,17 +1,25 @@
 <template>
   <v-row class="mx-10" style="min-height: 70vh">
     <v-col cols="12" md="4" offset-md="4" sm="8" offset-sm="2">
-      <v-text-field
-          label="Playlist ID"
-          v-model="playlistID"
-          :rules="playlistInputRules"
-          :loading="loading"
-          outlined
-          clearable
-          hide-details="auto"
-          class="mt-6 mb-2"
-          @input="getPlaylistData">
-      </v-text-field>
+      <v-tooltip bottom>
+        <template v-slot:activator="{ on, attrs }">
+          <v-text-field
+              label="Playlist ID"
+              v-model="playlistID"
+              :rules="playlistInputRules"
+              :loading="loading"
+              outlined
+              clearable
+              hide-details="auto"
+              class="mt-6 mb-2"
+              @input="getPlaylistData"
+              v-bind="attrs"
+              v-on="on"
+          >
+          </v-text-field>
+        </template>
+        <span>To find your playlist's ID in Spotify, select "Share", "Copy link to playlist", then paste the URL here!</span>
+      </v-tooltip>
     </v-col>
 
     <v-col cols="12">

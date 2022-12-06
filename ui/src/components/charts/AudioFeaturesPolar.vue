@@ -125,6 +125,7 @@ export default {
 <style scoped>
 .scrollable-container {
   max-height: 45vw;
+  min-height: 400px;
   width: 100%;
   overflow-x: hidden;
   padding-right: 5px;
