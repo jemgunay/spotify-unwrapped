@@ -28,13 +28,15 @@
               max-width="65"
               max-height="65"
               v-ripple
-              @click="openSpotifyPlaylistURL"
-              style="cursor: pointer;"
+              @click="openSpotifyURL(playlistMetadata['spotify_url'])"
+              class="clickable"
           ></v-img>
           <div class="ml-3">
-            <h2 class="section-heading" @click="openSpotifyPlaylistURL" style="cursor: pointer;">
+            <h2 class="section-heading clickable" @click="openSpotifyURL(playlistMetadata['spotify_url'])">
               {{ playlistMetadata['name'] }}</h2>
-            <h3>by {{ playlistMetadata['owner'] }}</h3>
+            <h3 @click="openSpotifyURL(playlistMetadata['owner']['spotify_url'])" class="clickable">
+              by {{ playlistMetadata['owner']['name'] }}
+            </h3>
           </div>
         </v-col>
         <v-col cols="12" sm="4" class="playlist-header-reverse">
@@ -186,11 +188,11 @@ export default {
       this.playlistID = value;
       return true;
     },
-    openSpotifyPlaylistURL() {
-      if (this.playlistMetadata["spotify_url"] == null) {
+    openSpotifyURL(spotifyURL) {
+      if (spotifyURL == null) {
         return;
       }
-      window.open(this.playlistMetadata["spotify_url"], '_blank');
+      window.open(spotifyURL, '_blank');
     }
   },
 }

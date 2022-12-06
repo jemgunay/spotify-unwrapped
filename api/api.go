@@ -121,8 +121,11 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 	// generate final output payload
 	statsPayload := map[string]interface{}{
 		"metadata": map[string]interface{}{
-			"name":        playlistData.Name,
-			"owner":       playlistData.Owner.DisplayName,
+			"name": playlistData.Name,
+			"owner": map[string]interface{}{
+				"name":        playlistData.Owner.DisplayName,
+				"spotify_url": playlistData.Owner.ExternalURLs.Spotify,
+			},
 			"image":       playlistData.Images.First(),
 			"spotify_url": playlistData.ExternalURLs.Spotify,
 			"track_count": playlistData.Tracks.Total,

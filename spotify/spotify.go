@@ -94,7 +94,10 @@ type Playlist struct {
 
 // Owner represents a playlist owner.
 type Owner struct {
-	DisplayName string `json:"display_name"`
+	DisplayName  string `json:"display_name"`
+	ExternalURLs struct {
+		Spotify string `json:"spotify"`
+	} `json:"external_urls"`
 }
 
 // Tracks represents a paginated set of track.
