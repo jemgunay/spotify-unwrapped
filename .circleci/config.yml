@@ -1,0 +1,37 @@
+version: 2.1
+orbs:
+  go: circleci/go@1.7.1
+jobs:
+  build:
+    executor:
+      name: go/default
+      tag: '1.19'
+    steps:
+      - checkout
+      - go/load-cache
+      - go/mod-download
+      - go/save-cache
+
+  test:
+    executor:
+      name: go/default
+      tag: '1.19'
+    steps:
+      - checkout
+      - go/load-cache
+      - go/mod-download
+      - go/save-cache
+      - go/test:
+          covermode: atomic
+          failfast: true
+          race: true
+
+# define order of job execution
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build
+      - test:
+          requires:
+            - build
