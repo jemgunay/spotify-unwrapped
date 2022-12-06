@@ -4,7 +4,7 @@
       <h3 class="section-heading">Explicit vs Non-Explicit Lyrics</h3>
     </v-col>
 
-    <v-col cols="8" offset="2">
+    <v-col cols="10" offset="1">
       <!-- explicit lyrics pie chart -->
       <Pie v-if="this.explicitnessData"
            :chart-options="chartOptions"

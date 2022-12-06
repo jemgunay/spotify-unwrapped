@@ -1,39 +1,39 @@
 <template>
-  <v-row>
-    <v-col cols="12" md="6">
-      <v-row>
-        <v-col cols="12">
-          <h3 class="section-heading">Audio Feature Averages</h3>
-        </v-col>
-
-        <v-col cols="10" offset="1">
-          <!-- raw audio feature stat averages -->
-          <PolarArea v-if="rawStatsData"
-                     :chart-options="chartOptions"
-                     :chart-data="chartData"
-                     chart-id="polar-stats-chart"
-                     dataset-id-key="polar-stats"
-          />
-        </v-col>
-      </v-row>
-    </v-col>
-
-    <!-- stat panels -->
-    <v-col md="6" cols="12">
-      <div class="scrollable-container mt-md-12">
+  <v-col cols="12">
+    <v-row>
+      <v-col cols="12" md="6">
         <v-row>
-          <v-col cols="12" sm="6" v-for="trackData in trackStatMappings" :key="trackData['name']">
-            <TrackStatPanel
-                :stat-title="trackData['name']"
-                :track-name="trackData['track']['name']"
-                :cover-image="trackData['track']['cover_image']"
-                :spotify-url="trackData['track']['spotify_url']"
+          <v-col cols="12">
+            <h3 class="section-heading">Audio Feature Averages</h3>
+
+            <!-- raw audio feature stat averages -->
+            <PolarArea v-if="rawStatsData"
+                       :chart-options="chartOptions"
+                       :chart-data="chartData"
+                       chart-id="polar-stats-chart"
+                       dataset-id-key="polar-stats"
             />
           </v-col>
         </v-row>
-      </div>
-    </v-col>
-  </v-row>
+      </v-col>
+
+      <!-- stat panels -->
+      <v-col cols="12" md="6">
+        <div class="scrollable-container mt-md-12">
+          <v-row>
+            <v-col cols="12" sm="6" v-for="trackData in trackStatMappings" :key="trackData['name']">
+              <TrackStatPanel
+                  :stat-title="trackData['name']"
+                  :track-name="trackData['track']['name']"
+                  :cover-image="trackData['track']['cover_image']"
+                  :spotify-url="trackData['track']['spotify_url']"
+              />
+            </v-col>
+          </v-row>
+        </div>
+      </v-col>
+    </v-row>
+  </v-col>
 </template>
 
 <script>

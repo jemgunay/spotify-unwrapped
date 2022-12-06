@@ -159,8 +159,22 @@ type Artist struct {
 
 // Album represents a single album.
 type Album struct {
-	ReleaseDate string `json:"release_date"`
-	Images      Images `json:"images"`
+	ReleaseDate          string `json:"release_date"`
+	ReleaseDatePrecision string `json:"release_date_precision"`
+	Images               Images `json:"images"`
+}
+
+// ParseReleaseDate parses the release date string variant into its equivalent time.Time.
+func (a Album) ParseReleaseDate() (time.Time, error) {
+	switch a.ReleaseDatePrecision {
+	case "day":
+		return time.Parse("2006-01-02", a.ReleaseDate)
+	case "month":
+		return time.Parse("2006-01", a.ReleaseDate)
+	case "year":
+		return time.Parse("2006", a.ReleaseDate)
+	}
+	return time.Time{}, errors.New("unrecognised release date precision")
 }
 
 // Images represents the set of different resolution images.
@@ -244,22 +258,19 @@ type AudioFeaturesResult struct {
 	Features []AudioFeatures `json:"audio_features"`
 }
 
-// AudioFeatures represents the properties of a track.
+// AudioFeatures represents the audio feature properties of a track.
 type AudioFeatures struct {
+	ID               string  `json:"id"`
 	Danceability     float64 `json:"danceability"`
 	Energy           float64 `json:"energy"`
-	Key              int     `json:"key"`
-	Loudness         float64 `json:"loudness"`
-	Mode             int     `json:"mode"`
 	Speechiness      float64 `json:"speechiness"`
 	Acousticness     float64 `json:"acousticness"`
 	Instrumentalness float64 `json:"instrumentalness"`
 	Liveness         float64 `json:"liveness"`
 	Valence          float64 `json:"valence"`
 	Tempo            float64 `json:"tempo"`
+	Key              int     `json:"key"`
 	Type             string  `json:"type"`
-	ID               string  `json:"id"`
-	URI              string  `json:"uri"`
 	DurationMs       int     `json:"duration_ms"`
 	TimeSignature    int     `json:"time_signature"`
 }

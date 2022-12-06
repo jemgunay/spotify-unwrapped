@@ -5,7 +5,6 @@ import (
 	"errors"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/gorilla/mux"
 	"go.uber.org/zap"
@@ -52,6 +51,7 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 		explicitMapping     = stats.NewMapping(2)
 		releaseDatesMapping = stats.NewMapping(10)
 		titleWordMapping    = stats.NewMapping(100)
+		artistWordMapping   = stats.NewMapping(100)
 		trackIDsList        = make([]string, 0, len(playlistData.Tracks.TrackItems))
 		trackIDLookup       = make(map[string]spotify.TrackDetails, len(playlistData.Tracks.TrackItems))
 	)
@@ -62,8 +62,11 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 		// aggregate track popularity
 		popularity.Push(track.TrackDetails.ID, track.TrackDetails.Popularity)
 		// aggregate by release year
-		releaseDate, err := time.Parse("2006-01-02", track.TrackDetails.Album.ReleaseDate)
-		if err == nil {
+		releaseDate, err := track.TrackDetails.Album.ParseReleaseDate()
+		if err != nil {
+			a.logger.Error("failed to parse album release date", zap.Error(err),
+				zap.String("date", track.TrackDetails.Album.ReleaseDate))
+		} else {
 			releaseDatesMapping.Push(strconv.Itoa(releaseDate.Year()))
 			releaseDates.Push(track.TrackDetails.ID, float64(releaseDate.Unix()))
 		}
@@ -77,6 +80,9 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 
 		// count unique sentence title words
 		stats.CountWordsInSentence(track.TrackDetails.Name, titleWordMapping)
+		for _, artist := range track.TrackDetails.Artists {
+			artistWordMapping.Push(artist.Name)
+		}
 	}
 
 	releaseDates.CalcDate(trackIDLookup)
@@ -118,7 +124,7 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 	instrumentalness.Calc(trackIDLookup, toPercentage)
 	liveness.Calc(trackIDLookup, toPercentage)
 
-	// generate final output payload
+	// generate final response payload
 	statsPayload := map[string]interface{}{
 		"metadata": map[string]interface{}{
 			"name": playlistData.Name,
@@ -149,7 +155,11 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 			"generation": generation,
 			"top_title_words": titleWordMapping.OrderedLabelsAndValues(
 				stats.WithSort(stats.SortValue, true),
-				stats.WithTruncate(30),
+				stats.WithTruncate(50),
+			),
+			"top_artists": artistWordMapping.OrderedLabelsAndValues(
+				stats.WithSort(stats.SortValue, true),
+				stats.WithTruncate(50),
 			),
 		},
 	}

@@ -54,13 +54,16 @@
           <v-divider></v-divider>
         </v-col>
 
-
-        <v-col md="5" cols="12">
+        <v-col cols="12" md="3">
+          <h3 class="section-heading">Top Artists</h3>
+          <WordCountTable :topTitleWords="topArtists"/>
+        </v-col>
+        <v-col cols="12" md="6">
+          <ExplicitPieChart :explicitnessData="explicitnessStats"/>
+        </v-col>
+        <v-col cols="12" md="3">
           <h3 class="section-heading">Common Track Title Words</h3>
           <WordCountTable :topTitleWords="topTitleWords"/>
-        </v-col>
-        <v-col cols="12" md="7">
-          <ExplicitPieChart :explicitnessData="explicitnessStats"/>
         </v-col>
 
         <v-col cols="12">
@@ -123,7 +126,8 @@ export default {
       explicitnessStats: null,
       releaseDateStats: null,
       generationDetails: null,
-      topTitleWords: null
+      topTitleWords: null,
+      topArtists: null
     }
   },
   created() {
@@ -150,6 +154,7 @@ export default {
             this.releaseDateStats = response.data["stats"]["release_dates"];
             this.generationDetails = response.data["stats"]["generation"];
             this.topTitleWords = response.data["stats"]["top_title_words"];
+            this.topArtists = response.data["stats"]["top_artists"];
 
             this.lastPlaylistID = this.playlistID;
           })

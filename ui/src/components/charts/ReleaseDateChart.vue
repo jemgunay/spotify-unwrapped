@@ -1,5 +1,5 @@
 <template>
-  <v-col md="6" cols="12">
+  <v-col cols="12" md="6">
     <h3 class="section-heading">Track Releases</h3>
 
     <!-- release date chart -->

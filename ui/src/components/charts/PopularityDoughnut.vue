@@ -1,11 +1,11 @@
 <template>
   <v-col cols="12">
     <v-row>
-      <v-col md="6" cols="12">
+      <v-col cols="12" md="3">
         <h3 class="section-heading">Track Popularity</h3>
 
         <v-row>
-          <v-col cols="12" sm="6">
+          <v-col cols="12" sm="12">
             <TrackStatPanel
                 stat-title="Least Popular"
                 :track-name="rawStatsData['popularity']['min']['name']"
@@ -13,7 +13,7 @@
                 :spotify-url="rawStatsData['popularity']['min']['spotify_url']"
             />
           </v-col>
-          <v-col cols="12" sm="6">
+          <v-col cols="12" sm=12>
             <TrackStatPanel
                 stat-title="Most Popular"
                 :track-name="rawStatsData['popularity']['max']['name']"
