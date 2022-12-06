@@ -69,6 +69,11 @@ export default {
       chartOptions: {
         responsive: true,
         // maintainAspectRatio: false
+        plugins: {
+          tooltip: {
+            enabled: false
+          }
+        }
       },
     }
   },
