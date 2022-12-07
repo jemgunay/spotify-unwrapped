@@ -64,9 +64,7 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 		// aggregate by release year
 		releaseDate, err := track.TrackDetails.Album.ParseReleaseDate()
 		if err != nil {
-			a.logger.Error("failed to parse album release date", zap.Error(err),
-				zap.String("date", track.TrackDetails.Album.ReleaseDate))
-		} else {
+			// sometimes tracks don't have release date metadata - skip them from this stat
 			releaseDatesMapping.Push(strconv.Itoa(releaseDate.Year()))
 			releaseDates.Push(track.TrackDetails.ID, float64(releaseDate.Unix()))
 		}

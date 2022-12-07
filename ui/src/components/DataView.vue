@@ -23,8 +23,8 @@
     </v-col>
 
     <v-col cols="12">
-      <p v-if="dataError" class="text-center">{{ dataError }}</p>
-      <p v-else-if="loading" class="text-center">Unwrapping playlist <strong>{{ playlistID }}</strong>...</p>
+      <p v-if="dataError" class="text-center mt-4">{{ dataError }}</p>
+      <p v-else-if="loading" class="text-center mt-4">Unwrapping playlist <strong>{{ playlistID }}</strong>...</p>
 
       <v-row v-if="playlistMetadata">
 

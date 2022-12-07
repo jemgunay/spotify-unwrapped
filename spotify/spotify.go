@@ -270,9 +270,7 @@ type AudioFeatures struct {
 	Valence          float64 `json:"valence"`
 	Tempo            float64 `json:"tempo"`
 	Key              int     `json:"key"`
-	Type             string  `json:"type"`
-	DurationMs       int     `json:"duration_ms"`
-	TimeSignature    int     `json:"time_signature"`
+	DurationMillis   int     `json:"duration_ms"`
 }
 
 // GetAudioFeatures gets audio properties for a set of tracks.
