@@ -27,13 +27,11 @@ npm run serve
 
 ## TODO
 
-* Add tooltips to explain audio features
-* Round audio feature averages
+* Add tooltips to explain audio feature meanings
+* Round audio feature averages to integers
 * Persist playlist ID in URL
-* Cache result for a period of time server-side (memcached, TTL 5 mins)
 * Visualisation ideas
     * Key/tempo vs valence
     * Pie chart of artist genre frequency in a playlist
-    * Languages/country
-    * Track duration
-    * Loudness
+    * Artist country
+    * Track duration (min/max/avg)
