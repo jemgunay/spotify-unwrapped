@@ -63,7 +63,7 @@
         </v-col>
 
         <v-col cols="12" md="3">
-          <h3 class="section-heading">Top Artists</h3>
+          <h3 class="section-heading">Most Common Artists</h3>
           <WordCountTable :topTitleWords="topArtists"/>
         </v-col>
         <v-col cols="12" md="6">
@@ -86,6 +86,12 @@
 
         <PopularityDoughnut :rawStatsData="rawPlaylistStats"/>
 
+        <v-col cols="12">
+          <v-divider></v-divider>
+        </v-col>
+
+        <MusicalComposition :rawStatsData="rawPlaylistStats" :pitchKeyData="pitchKeyData"/>
+
         <!--<v-col cols="12">-->
         <!--  <v-divider></v-divider>-->
         <!--</v-col>-->
@@ -104,8 +110,9 @@ import PlaylistGeneration from "@/components/charts/PlaylistGeneration";
 import WordCountTable from "@/components/charts/WordCountTable";
 import ExplicitPieChart from "@/components/charts/ExplicitPieChart";
 import AudioFeaturesPolar from "@/components/charts/AudioFeaturesPolar";
-// import RawStatsTable from "@/components/charts/RawStatsTable";
 import PopularityDoughnut from "@/components/charts/PopularityDoughnut";
+import MusicalComposition from "@/components/charts/MusicalComposition";
+// import RawStatsTable from "@/components/charts/RawStatsTable";
 
 export default {
   name: 'DataView',
@@ -116,6 +123,7 @@ export default {
     ExplicitPieChart,
     AudioFeaturesPolar,
     PopularityDoughnut,
+    MusicalComposition,
     // RawStatsTable
   },
   data() {
@@ -135,7 +143,8 @@ export default {
       releaseDateStats: null,
       generationDetails: null,
       topTitleWords: null,
-      topArtists: null
+      topArtists: null,
+      pitchKeyData: null
     }
   },
   created() {
@@ -163,6 +172,7 @@ export default {
             this.generationDetails = response.data["stats"]["generation"];
             this.topTitleWords = response.data["stats"]["top_title_words"];
             this.topArtists = response.data["stats"]["top_artists"];
+            this.pitchKeyData = response.data["stats"]["pitch_key"];
 
             this.lastPlaylistID = this.playlistID;
           })

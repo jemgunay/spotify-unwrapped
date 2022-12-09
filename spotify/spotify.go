@@ -302,7 +302,7 @@ func (r *Requester) GetAudioFeatures(trackIDs []string) ([]AudioFeatures, error)
 	}
 }
 
-func (r *Requester) performGetRequest(reqURL string, target interface{}) error {
+func (r *Requester) performGetRequest(reqURL string, target any) error {
 	var err error
 	for i := 1; i <= 10; i++ {
 		var accessToken string
@@ -339,7 +339,7 @@ func (r *Requester) performGetRequest(reqURL string, target interface{}) error {
 	return err
 }
 
-func (r *Requester) get(reqURL string, accessToken string, target interface{}) error {
+func (r *Requester) get(reqURL string, accessToken string, target any) error {
 	req, err := http.NewRequest(http.MethodGet, reqURL, nil)
 	if err != nil {
 		return fmt.Errorf("failed to create request: %w", err)
