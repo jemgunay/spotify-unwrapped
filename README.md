@@ -19,7 +19,8 @@ A web app for visualising Spotify playlist data.
 
 ```bash
 go run main.go
-go run main.go -debug # debug logs
+# debug logs, e.g. full egress request logs
+go run main.go -debug
 
 cd ui
 npm run serve
@@ -28,10 +29,8 @@ npm run serve
 ## TODO
 
 * Add tooltips to explain audio feature meanings
-* Round audio feature averages to integers
 * Persist playlist ID in URL
 * Visualisation ideas
     * Key/tempo vs valence
     * Pie chart of artist genre frequency in a playlist
     * Artist country
-    * Track duration (min/max/avg)

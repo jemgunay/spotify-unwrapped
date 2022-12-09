@@ -14,19 +14,19 @@
       <v-col cols="12" sm="6">
         <TrackStatPanel
             stat-title="Oldest Track"
-            :track-name="rawStatsData['releaseDates']['min']['name']"
-            :track-date="rawStatsData['releaseDates']['min']['date']"
-            :cover-image="rawStatsData['releaseDates']['min']['cover_image']"
-            :spotify-url="rawStatsData['releaseDates']['min']['spotify_url']"
+            :track-name="rawStatsData['release_dates']['min']['name']"
+            :track-date="rawStatsData['release_dates']['min']['date']"
+            :cover-image="rawStatsData['release_dates']['min']['cover_image']"
+            :spotify-url="rawStatsData['release_dates']['min']['spotify_url']"
         />
       </v-col>
       <v-col cols="12" sm="6">
         <TrackStatPanel
             stat-title="Youngest Track"
-            :track-name="rawStatsData['releaseDates']['max']['name']"
-            :track-date="rawStatsData['releaseDates']['max']['date']"
-            :cover-image="rawStatsData['releaseDates']['max']['cover_image']"
-            :spotify-url="rawStatsData['releaseDates']['max']['spotify_url']"
+            :track-name="rawStatsData['release_dates']['max']['name']"
+            :track-date="rawStatsData['release_dates']['max']['date']"
+            :cover-image="rawStatsData['release_dates']['max']['cover_image']"
+            :spotify-url="rawStatsData['release_dates']['max']['spotify_url']"
         />
       </v-col>
     </v-row>

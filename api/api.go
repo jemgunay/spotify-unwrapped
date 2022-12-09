@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"errors"
+	"math"
 	"net/http"
 	"strconv"
 
@@ -33,6 +34,8 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	playlistID := vars["playlistID"]
 
+	a.logger.Debug("playlist request", zap.String("playlist", playlistID))
+
 	// fetch playlist data for given playlist ID
 	playlistData, err := a.spotifyReq.GetPlaylist(playlistID)
 	if err != nil {
@@ -48,8 +51,8 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 	var (
 		popularity          stats.Group
 		releaseDates        stats.Group
-		explicitMapping     = stats.NewMapping(2)
 		releaseDatesMapping = stats.NewMapping(10)
+		explicitMapping     = stats.NewMapping(2)
 		titleWordMapping    = stats.NewMapping(100)
 		artistWordMapping   = stats.NewMapping(100)
 		trackIDsList        = make([]string, 0, len(playlistData.Tracks.TrackItems))
@@ -63,10 +66,8 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 		popularity.Push(track.TrackDetails.ID, track.TrackDetails.Popularity)
 		// aggregate by release year
 		releaseDate, err := track.TrackDetails.Album.ParseReleaseDate()
-		if err != nil {
-			a.logger.Error("failed to parse album release date", zap.Error(err),
-				zap.String("date", track.TrackDetails.Album.ReleaseDate))
-		} else {
+		if err == nil {
+			// sometimes tracks don't have release date metadata - skip them from this stat
 			releaseDatesMapping.Push(strconv.Itoa(releaseDate.Year()))
 			releaseDates.Push(track.TrackDetails.ID, float64(releaseDate.Unix()))
 		}
@@ -85,7 +86,7 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	releaseDates.CalcDate(trackIDLookup)
+	releaseDates.Calc(trackIDLookup, stats.ToDateString())
 	generation, err := stats.GetGeneration(releaseDates.Mean.DateYear())
 	if err != nil {
 		// don't error out
@@ -101,8 +102,11 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// aggregate track data for each stat
+	// aggregate track audio feature metadata for each stat
 	var energy, danceability, valence, acousticness, speechiness, instrumentalness, liveness stats.Group
+	var trackDuration, tempo stats.Group
+	pitchKeyCounts := stats.NewMapping(12, stats.PitchKeys...)
+
 	for _, feature := range audioFeatures {
 		energy.Push(feature.ID, feature.Energy)
 		danceability.Push(feature.ID, feature.Danceability)
@@ -111,10 +115,20 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 		speechiness.Push(feature.ID, feature.Speechiness)
 		instrumentalness.Push(feature.ID, feature.Instrumentalness)
 		liveness.Push(feature.ID, feature.Liveness)
+		trackDuration.Push(feature.ID, float64(feature.DurationMillis))
+		tempo.Push(feature.ID, math.Round(feature.Tempo))
+
+		// -1 is Spotify's unknown key value
+		if feature.Key > -1 {
+			pitchKeyCounts.Push(stats.SpotifyKeyToPitchKey(feature.Key))
+		}
 	}
 
 	// perform final calculations on each stat and lookup track names
 	popularity.Calc(trackIDLookup)
+	trackDuration.Calc(trackIDLookup, stats.ToDurationString())
+	tempo.Calc(trackIDLookup)
+
 	toPercentage := stats.WithMultiplier(100)
 	energy.Calc(trackIDLookup, toPercentage)
 	danceability.Calc(trackIDLookup, toPercentage)
@@ -125,10 +139,10 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 	liveness.Calc(trackIDLookup, toPercentage)
 
 	// generate final response payload
-	statsPayload := map[string]interface{}{
-		"metadata": map[string]interface{}{
+	statsPayload := map[string]any{
+		"metadata": map[string]any{
 			"name": playlistData.Name,
-			"owner": map[string]interface{}{
+			"owner": map[string]any{
 				"name":        playlistData.Owner.DisplayName,
 				"spotify_url": playlistData.Owner.ExternalURLs.Spotify,
 			},
@@ -136,8 +150,8 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 			"spotify_url": playlistData.ExternalURLs.Spotify,
 			"track_count": playlistData.Tracks.Total,
 		},
-		"stats": map[string]interface{}{
-			"raw": map[string]interface{}{
+		"stats": map[string]any{
+			"raw": map[string]any{
 				"popularity":       popularity,
 				"energy":           energy,
 				"danceability":     danceability,
@@ -146,7 +160,9 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 				"speechiness":      speechiness,
 				"instrumentalness": instrumentalness,
 				"liveness":         liveness,
-				"releaseDates":     releaseDates,
+				"release_dates":    releaseDates,
+				"track_durations":  trackDuration,
+				"tempo":            tempo,
 			},
 			"explicitness": explicitMapping,
 			"release_dates": releaseDatesMapping.OrderedLabelsAndValues(
@@ -160,6 +176,9 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 			"top_artists": artistWordMapping.OrderedLabelsAndValues(
 				stats.WithSort(stats.SortValue, true),
 				stats.WithTruncate(50),
+			),
+			"pitch_key": pitchKeyCounts.OrderedLabelsAndValues(
+				stats.WithSort(stats.SortPitchKey, false),
 			),
 		},
 	}

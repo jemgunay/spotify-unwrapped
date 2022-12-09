@@ -2,7 +2,7 @@
   <v-col cols="12">
     <v-row>
       <v-col cols="12" md="3">
-        <h3 class="section-heading">Track Popularity</h3>
+        <h3 class="section-heading">Popularity</h3>
 
         <v-row>
           <v-col cols="12" sm="12">

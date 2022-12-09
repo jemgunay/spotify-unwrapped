@@ -4,7 +4,7 @@
       <v-col cols="12" md="6">
         <v-row>
           <v-col cols="12">
-            <h3 class="section-heading">Audio Feature Averages</h3>
+            <h3 class="section-heading">Audio Characteristics (Averages)</h3>
 
             <!-- raw audio feature stat averages -->
             <PolarArea v-if="rawStatsData"
@@ -62,7 +62,6 @@ export default {
     return {
       chartOptions: {
         responsive: true,
-        // maintainAspectRatio: false,
         scales: {
           r: {
             min: 0,
