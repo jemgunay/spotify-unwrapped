@@ -131,7 +131,8 @@ export default {
       apiHost: process.env.VUE_APP_API_HOST,
       dataError: null,
       loading: false,
-      playlistID: "1KnTiUzSU2HlEtejfXWPo2",
+      playlistID: null,
+      defaultPlaylistID: "1KnTiUzSU2HlEtejfXWPo2",
       lastPlaylistID: null,
       playlistInputRules: [
         value => !!value || 'Required.',
@@ -148,6 +149,7 @@ export default {
     }
   },
   created() {
+    this.setPlaylistID();
     this.getPlaylistData();
   },
   methods: {
@@ -175,6 +177,7 @@ export default {
             this.pitchKeyData = response.data["stats"]["pitch_key"];
 
             this.lastPlaylistID = this.playlistID;
+            this.updatePlaylistIDQuery(this.playlistID);
           })
           .catch(error => {
             if (error.code === "ERR_NETWORK") {
@@ -216,6 +219,23 @@ export default {
         return;
       }
       window.open(spotifyURL, '_blank');
+    },
+    setPlaylistID() {
+      let searchParams = new URLSearchParams(window.location.search);
+      let id = searchParams.get("playlist")
+      if (id === null || id === "") {
+        this.playlistID = this.defaultPlaylistID;
+        return;
+      }
+      this.playlistID = id;
+    },
+    updatePlaylistIDQuery(playlistID) {
+      if ('URLSearchParams' in window) {
+        let searchParams = new URLSearchParams(window.location.search);
+        searchParams.set("playlist", playlistID);
+        let newRelativePathQuery = window.location.pathname + '?' + searchParams.toString();
+        history.replaceState(null, '', newRelativePathQuery);
+      }
     }
   },
 }

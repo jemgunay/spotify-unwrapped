@@ -29,8 +29,7 @@ npm run serve
 ## TODO
 
 * Add tooltips to explain audio feature meanings
-* Persist playlist ID in URL
 * Visualisation ideas
     * Key/tempo vs valence
-    * Pie chart of artist genre frequency in a playlist
+    * Pie chart of artist genre frequency
     * Artist country
