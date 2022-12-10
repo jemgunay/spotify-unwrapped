@@ -4,7 +4,7 @@
       <v-col cols="12" md="6">
         <v-row>
           <v-col cols="12">
-            <h3 class="section-heading">Audio Characteristics (Averages)</h3>
+            <h3 class="section-heading">Audio Characteristics</h3>
 
             <!-- raw audio feature stat averages -->
             <PolarArea v-if="rawStatsData"
@@ -20,7 +20,7 @@
       <!-- stat panels -->
       <v-col cols="12" md="6">
         <div class="scrollable-container mt-md-12">
-          <v-row>
+          <v-row dense>
             <v-col cols="12" sm="6" v-for="trackData in trackStatMappings" :key="trackData['name']">
               <TrackStatPanel
                   :stat-title="trackData['name']"
@@ -67,6 +67,12 @@ export default {
             min: 0,
             max: 100
           }
+        },
+        plugins: {
+          title: {
+            display: true,
+            text: 'Characteristic Averages'
+          }
         }
       }
     }
@@ -80,8 +86,7 @@ export default {
           'Danceability',
           'Energy',
           'Liveness',
-          'Speechiness',
-          'Positiveness'
+          'Speechiness'
         ],
         datasets: [
           {
@@ -92,8 +97,7 @@ export default {
               this.rawStatsData['danceability']['avg']['value'],
               this.rawStatsData['energy']['avg']['value'],
               this.rawStatsData['liveness']['avg']['value'],
-              this.rawStatsData['speechiness']['avg']['value'],
-              this.rawStatsData['valence']['avg']['value']
+              this.rawStatsData['speechiness']['avg']['value']
             ]
           }
         ]
@@ -112,9 +116,7 @@ export default {
         {"name": "Least Live", "track": this.rawStatsData['liveness']['min']},
         {"name": "Most Live", "track": this.rawStatsData['liveness']['max']},
         {"name": "Least Vocal", "track": this.rawStatsData['speechiness']['min']},
-        {"name": "Most Vocal", "track": this.rawStatsData['speechiness']['max']},
-        {"name": "Least Positive", "track": this.rawStatsData['valence']['min']},
-        {"name": "Most Positive", "track": this.rawStatsData['valence']['max']}
+        {"name": "Most Vocal", "track": this.rawStatsData['speechiness']['max']}
       ]
     }
   }

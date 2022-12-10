@@ -8,9 +8,9 @@
       ({{ generationDetails["lower"] }} - {{ generationDetails["upper"] }})...</p>
     <p class="generation-summary">"{{ generationDetails["summary"] }}"</p>
 
-    <v-divider class="mt-6 mb-6"></v-divider>
+    <v-divider class="mb-3"></v-divider>
 
-    <v-row>
+    <v-row dense>
       <v-col cols="12" sm="6">
         <TrackStatPanel
             stat-title="Oldest Track"

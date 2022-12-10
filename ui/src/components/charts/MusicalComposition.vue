@@ -14,7 +14,7 @@
 
       <v-col cols="12" md="6">
 
-        <v-row>
+        <v-row dense>
           <v-col cols="12">
             <h3 class="section-heading">Tempo</h3>
             <p class="mb-0">The average track tempo is <strong>{{ rawStatsData['tempo']['avg']['value'] }} BPM</strong>.
@@ -38,9 +38,9 @@
           </v-col>
         </v-row>
 
-        <v-row>
+        <v-row dense>
           <v-col cols="12">
-            <h3 class="section-heading">Track Length</h3>
+            <h3 class="section-heading mt-3">Track Length</h3>
             <p class="mb-0">The average track length is <strong>{{
                 rawStatsData['track_durations']['avg']['value']
               }}</strong>.</p>

@@ -84,7 +84,7 @@
           <v-divider></v-divider>
         </v-col>
 
-        <PopularityDoughnut :rawStatsData="rawPlaylistStats"/>
+        <PopularityPositivity :rawStatsData="rawPlaylistStats"/>
 
         <v-col cols="12">
           <v-divider></v-divider>
@@ -110,7 +110,7 @@ import PlaylistGeneration from "@/components/charts/PlaylistGeneration";
 import WordCountTable from "@/components/charts/WordCountTable";
 import ExplicitPieChart from "@/components/charts/ExplicitPieChart";
 import AudioFeaturesPolar from "@/components/charts/AudioFeaturesPolar";
-import PopularityDoughnut from "@/components/charts/PopularityDoughnut";
+import PopularityPositivity from "@/components/charts/PopularityPositivity";
 import MusicalComposition from "@/components/charts/MusicalComposition";
 // import RawStatsTable from "@/components/charts/RawStatsTable";
 
@@ -122,7 +122,7 @@ export default {
     WordCountTable,
     ExplicitPieChart,
     AudioFeaturesPolar,
-    PopularityDoughnut,
+    PopularityPositivity,
     MusicalComposition,
     // RawStatsTable
   },
