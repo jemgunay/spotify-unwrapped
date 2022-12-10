@@ -1,5 +1,5 @@
 <template>
-  <v-row class="mx-10" style="min-height: 70vh">
+  <v-row>
     <v-col cols="12" md="4" offset-md="4" sm="8" offset-sm="2">
       <v-tooltip bottom>
         <template v-slot:activator="{ on, attrs }">
