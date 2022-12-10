@@ -25,11 +25,3 @@ go run main.go -debug
 cd ui
 npm run serve
 ```
-
-## TODO
-
-* Add tooltips to explain audio feature meanings
-* Visualisation ideas
-    * Key/tempo vs valence
-    * Pie chart of artist genre frequency
-    * Artist country

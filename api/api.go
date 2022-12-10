@@ -34,12 +34,13 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	playlistID := vars["playlistID"]
 
-	a.logger.Debug("playlist request", zap.String("playlist", playlistID))
+	logger := a.logger.With(zap.String("playlist", playlistID))
+	logger.Info("playlist API request")
 
 	// fetch playlist data for given playlist ID
 	playlistData, err := a.spotifyReq.GetPlaylist(playlistID)
 	if err != nil {
-		a.logger.Error("failed to fetch playlist data", zap.Error(err))
+		logger.Error("failed to fetch playlist data", zap.Error(err))
 		if errors.Is(err, spotify.ErrNotFound) {
 			w.WriteHeader(http.StatusNotFound)
 			return
@@ -86,11 +87,12 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// determine the playlist age/generation
 	releaseDates.Calc(trackIDLookup, stats.ToDateString())
 	generation, err := stats.GetGeneration(releaseDates.Mean.DateYear())
 	if err != nil {
-		// don't error out
-		a.logger.Error("failed to determine playlist generation", zap.Error(err),
+		// don't error out - we can still display all the other data
+		logger.Error("failed to determine playlist generation", zap.Error(err),
 			zap.Int("avg_year", releaseDates.Mean.DateYear()))
 	}
 
@@ -98,7 +100,7 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 	audioFeatures, err := a.spotifyReq.GetAudioFeatures(trackIDsList)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		a.logger.Error("failed to fetch audio feature data", zap.Error(err))
+		logger.Error("failed to fetch audio feature data", zap.Error(err))
 		return
 	}
 
@@ -128,7 +130,7 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 	popularity.Calc(trackIDLookup)
 	trackDuration.Calc(trackIDLookup, stats.ToDurationString())
 	tempo.Calc(trackIDLookup)
-
+	// process the following stats from decimal to percentages
 	toPercentage := stats.WithMultiplier(100)
 	energy.Calc(trackIDLookup, toPercentage)
 	danceability.Calc(trackIDLookup, toPercentage)
@@ -186,7 +188,7 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 	respBody, err := json.Marshal(statsPayload)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		a.logger.Error("failed to JSON marshal playlist API data", zap.Error(err))
+		logger.Error("failed to JSON marshal playlist API data", zap.Error(err))
 		return
 	}
 
