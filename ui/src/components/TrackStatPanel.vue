@@ -13,7 +13,7 @@
             <v-list-item-content>
               <v-list-item-title>{{ statTitle }}</v-list-item-title>
               <v-list-item-subtitle>{{ trackName }}</v-list-item-subtitle>
-              <v-list-item-subtitle v-if="trackDate">{{ trackDate }}</v-list-item-subtitle>
+              <v-list-item-subtitle v-if="trackMeta">{{ trackMeta }}</v-list-item-subtitle>
             </v-list-item-content>
           </v-list-item>
         </v-col>
@@ -45,7 +45,7 @@ export default {
         return null
       }
     },
-    trackDate: {
+    trackMeta: {
       type: String,
       default() {
         return null

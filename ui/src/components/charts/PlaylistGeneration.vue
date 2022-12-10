@@ -8,14 +8,14 @@
       ({{ generationDetails["lower"] }} - {{ generationDetails["upper"] }})...</p>
     <p class="generation-summary">"{{ generationDetails["summary"] }}"</p>
 
-    <v-divider class="mt-6 mb-6"></v-divider>
+    <v-divider class="mb-3"></v-divider>
 
-    <v-row>
+    <v-row dense>
       <v-col cols="12" sm="6">
         <TrackStatPanel
             stat-title="Oldest Track"
             :track-name="rawStatsData['release_dates']['min']['name']"
-            :track-date="rawStatsData['release_dates']['min']['date']"
+            :track-meta="rawStatsData['release_dates']['min']['value']"
             :cover-image="rawStatsData['release_dates']['min']['cover_image']"
             :spotify-url="rawStatsData['release_dates']['min']['spotify_url']"
         />
@@ -24,7 +24,7 @@
         <TrackStatPanel
             stat-title="Youngest Track"
             :track-name="rawStatsData['release_dates']['max']['name']"
-            :track-date="rawStatsData['release_dates']['max']['date']"
+            :track-meta="rawStatsData['release_dates']['max']['value']"
             :cover-image="rawStatsData['release_dates']['max']['cover_image']"
             :spotify-url="rawStatsData['release_dates']['max']['spotify_url']"
         />

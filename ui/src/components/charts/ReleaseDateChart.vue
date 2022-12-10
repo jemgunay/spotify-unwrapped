@@ -1,6 +1,6 @@
 <template>
   <v-col cols="12" md="6">
-    <h3 class="section-heading">Track Releases</h3>
+    <h3 class="section-heading">Track Releases by Year</h3>
 
     <!-- release date chart -->
     <Bar v-if="this.releaseDateData"
@@ -40,6 +40,20 @@ export default {
         plugins: {
           legend: {
             display: false
+          }
+        },
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: 'Year Released'
+            }
+          },
+          y: {
+            title: {
+              display: true,
+              text: 'Track Count'
+            }
           }
         }
       },

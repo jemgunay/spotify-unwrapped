@@ -1,8 +1,11 @@
 <template>
   <v-app>
     <v-main>
-      <Header/>
-      <DataView/>
+      <v-container class="py-10 px-10" fluid>
+        <Header/>
+        <DataView/>
+      </v-container>
+
       <Footer/>
     </v-main>
   </v-app>

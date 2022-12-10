@@ -74,6 +74,7 @@ type Logger interface {
 	Warn(msg string, fields ...zapcore.Field)
 	Error(msg string, fields ...zapcore.Field)
 	Fatal(msg string, fields ...zapcore.Field)
+	With(fields ...zap.Field) *zap.Logger
 }
 
 func newLogger(level zapcore.Level) Logger {

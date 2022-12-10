@@ -1,5 +1,5 @@
 <template>
-  <v-row class="mx-10" style="min-height: 70vh">
+  <v-row>
     <v-col cols="12" md="4" offset-md="4" sm="8" offset-sm="2">
       <v-tooltip bottom>
         <template v-slot:activator="{ on, attrs }">
@@ -84,7 +84,7 @@
           <v-divider></v-divider>
         </v-col>
 
-        <PopularityDoughnut :rawStatsData="rawPlaylistStats"/>
+        <PopularityPositivity :rawStatsData="rawPlaylistStats" :positivityGraphData="positivityGraphData"/>
 
         <v-col cols="12">
           <v-divider></v-divider>
@@ -110,7 +110,7 @@ import PlaylistGeneration from "@/components/charts/PlaylistGeneration";
 import WordCountTable from "@/components/charts/WordCountTable";
 import ExplicitPieChart from "@/components/charts/ExplicitPieChart";
 import AudioFeaturesPolar from "@/components/charts/AudioFeaturesPolar";
-import PopularityDoughnut from "@/components/charts/PopularityDoughnut";
+import PopularityPositivity from "@/components/charts/PopularityPositivity";
 import MusicalComposition from "@/components/charts/MusicalComposition";
 // import RawStatsTable from "@/components/charts/RawStatsTable";
 
@@ -122,7 +122,7 @@ export default {
     WordCountTable,
     ExplicitPieChart,
     AudioFeaturesPolar,
-    PopularityDoughnut,
+    PopularityPositivity,
     MusicalComposition,
     // RawStatsTable
   },
@@ -131,7 +131,8 @@ export default {
       apiHost: process.env.VUE_APP_API_HOST,
       dataError: null,
       loading: false,
-      playlistID: "1KnTiUzSU2HlEtejfXWPo2",
+      playlistID: null,
+      defaultPlaylistID: "1KnTiUzSU2HlEtejfXWPo2",
       lastPlaylistID: null,
       playlistInputRules: [
         value => !!value || 'Required.',
@@ -144,10 +145,12 @@ export default {
       generationDetails: null,
       topTitleWords: null,
       topArtists: null,
-      pitchKeyData: null
+      pitchKeyData: null,
+      positivityGraphData: null
     }
   },
   created() {
+    this.setPlaylistID();
     this.getPlaylistData();
   },
   methods: {
@@ -173,8 +176,10 @@ export default {
             this.topTitleWords = response.data["stats"]["top_title_words"];
             this.topArtists = response.data["stats"]["top_artists"];
             this.pitchKeyData = response.data["stats"]["pitch_key"];
+            this.positivityGraphData = response.data["stats"]["positivity_graph_data"];
 
             this.lastPlaylistID = this.playlistID;
+            this.updatePlaylistIDQuery(this.playlistID);
           })
           .catch(error => {
             if (error.code === "ERR_NETWORK") {
@@ -216,6 +221,23 @@ export default {
         return;
       }
       window.open(spotifyURL, '_blank');
+    },
+    setPlaylistID() {
+      let searchParams = new URLSearchParams(window.location.search);
+      let id = searchParams.get("playlist")
+      if (id === null || id === "") {
+        this.playlistID = this.defaultPlaylistID;
+        return;
+      }
+      this.playlistID = id;
+    },
+    updatePlaylistIDQuery(playlistID) {
+      if ('URLSearchParams' in window) {
+        let searchParams = new URLSearchParams(window.location.search);
+        searchParams.set("playlist", playlistID);
+        let newRelativePathQuery = window.location.pathname + '?' + searchParams.toString();
+        history.replaceState(null, '', newRelativePathQuery);
+      }
     }
   },
 }

@@ -1,7 +1,7 @@
 <template>
   <v-row>
     <v-col cols="12">
-      <h1 class="header-title mt-14" :style="{'color':titleColour}">
+      <h1 class="header-title" :style="{'color':titleColour}">
         Spotify Unwrapped
         <v-icon size="48px" :style="{'color':titleColour}">mdi-gift-open-outline</v-icon>
       </h1>
