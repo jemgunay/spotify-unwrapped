@@ -34,7 +34,7 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	playlistID := vars["playlistID"]
 
-	logger := a.logger.With(zap.String("playlist", playlistID))
+	logger := a.logger.With(zap.String("playlist", playlistID), zap.String("addr", r.RemoteAddr))
 	logger.Info("playlist API request")
 
 	// fetch playlist data for given playlist ID
@@ -108,6 +108,7 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 	var energy, danceability, valence, acousticness, speechiness, instrumentalness, liveness stats.Group
 	var trackDuration, tempo stats.Group
 	pitchKeyCounts := stats.NewMapping(12, stats.PitchKeys...)
+	positivityGraphData := make([]positivityGraphPoint, 0, len(audioFeatures))
 
 	for _, feature := range audioFeatures {
 		energy.Push(feature.ID, feature.Energy)
@@ -124,6 +125,12 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 		if feature.Key > -1 {
 			pitchKeyCounts.Push(stats.SpotifyKeyToPitchKey(feature.Key))
 		}
+
+		positivityGraphData = append(positivityGraphData, positivityGraphPoint{
+			X: feature.Valence * 100,
+			Y: trackIDLookup[feature.ID].Popularity,
+			R: normaliseBetweenRange(0, 1, 0, 3, feature.Energy),
+		})
 	}
 
 	// perform final calculations on each stat and lookup track names
@@ -182,6 +189,7 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 			"pitch_key": pitchKeyCounts.OrderedLabelsAndValues(
 				stats.WithSort(stats.SortPitchKey, false),
 			),
+			"positivity_graph_data": positivityGraphData,
 		},
 	}
 
@@ -193,4 +201,15 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Write(respBody)
+}
+
+// positivityGraphPoint is the format expected by the positivity/popularity/energy bubble graph.
+type positivityGraphPoint struct {
+	X float64 `json:"x"`
+	Y float64 `json:"y"`
+	R float64 `json:"r"`
+}
+
+func normaliseBetweenRange(a0, a1, b0, b1, a float64) float64 {
+	return b0 + (b1-b0)*((a-a0)/(a1-a0))
 }

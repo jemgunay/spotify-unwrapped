@@ -25,3 +25,9 @@ go run main.go -debug
 cd ui
 npm run serve
 ```
+
+## TODO
+
+* Redo screenshots
+* Add tooltips
+* Add general info btn for implementation details/limitations (i.e. max tracks per query)

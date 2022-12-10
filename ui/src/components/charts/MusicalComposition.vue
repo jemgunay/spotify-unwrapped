@@ -23,7 +23,8 @@
           <v-col cols="12" sm="6">
             <TrackStatPanel
                 stat-title="Lowest BPM"
-                :track-name="rawStatsData['tempo']['min']['name'] + ' (' + rawStatsData['tempo']['min']['value'] + ' BPM)'"
+                :track-name="rawStatsData['tempo']['min']['name']"
+                :track-meta="rawStatsData['tempo']['min']['value'] + ' BPM'"
                 :cover-image="rawStatsData['tempo']['min']['cover_image']"
                 :spotify-url="rawStatsData['tempo']['min']['spotify_url']"
             />
@@ -31,7 +32,8 @@
           <v-col cols="12" sm=6>
             <TrackStatPanel
                 stat-title="Highest BPM"
-                :track-name="rawStatsData['tempo']['max']['name'] + ' (' + rawStatsData['tempo']['max']['value'] + ' BPM)'"
+                :track-name="rawStatsData['tempo']['max']['name']"
+                :track-meta="rawStatsData['tempo']['max']['value'] + ' BPM'"
                 :cover-image="rawStatsData['tempo']['max']['cover_image']"
                 :spotify-url="rawStatsData['tempo']['max']['spotify_url']"
             />
@@ -48,7 +50,8 @@
           <v-col cols="12" sm="6">
             <TrackStatPanel
                 stat-title="Shortest Track"
-                :track-name="rawStatsData['track_durations']['min']['name'] + ' (' + rawStatsData['track_durations']['min']['value'] + ')'"
+                :track-name="rawStatsData['track_durations']['min']['name']"
+                :track-meta="rawStatsData['track_durations']['min']['value']"
                 :cover-image="rawStatsData['track_durations']['min']['cover_image']"
                 :spotify-url="rawStatsData['track_durations']['min']['spotify_url']"
             />
@@ -56,7 +59,8 @@
           <v-col cols="12" sm=6>
             <TrackStatPanel
                 stat-title="Longest Track"
-                :track-name="rawStatsData['track_durations']['max']['name'] + ' (' + rawStatsData['track_durations']['max']['value'] + ')'"
+                :track-name="rawStatsData['track_durations']['max']['name']"
+                :track-meta="rawStatsData['track_durations']['max']['value']"
                 :cover-image="rawStatsData['track_durations']['max']['cover_image']"
                 :spotify-url="rawStatsData['track_durations']['max']['spotify_url']"
             />

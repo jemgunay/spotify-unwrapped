@@ -12,11 +12,10 @@
               {{ this.roundedPopularity }}%
             </h1>
             <Doughnut v-if="this.rawStatsData"
-                      :chart-options="chartOptions"
-                      :chart-data="chartData"
-                      chart-id="popularity-chart"
-                      dataset-id-key="popularity"
-                      id="explicit-pie"
+                      :chart-options="popularityDoughnutOptions"
+                      :chart-data="popularityDoughnutChartData"
+                      chart-id="popularity-doughnut"
+                      dataset-id-key="popularity-doughnut"
             />
           </v-col>
 
@@ -49,7 +48,7 @@
             <p class="mb-0">The average track positivity is <strong>{{
                 rawStatsData['valence']['avg']['value']
               }}%</strong>.
-              <v-icon size="36px" :style="{'color': getPositivityColor}">{{ getPositivityIcon }}</v-icon>
+              <v-icon size="34px" :style="{'color': getPositivityColor}">{{ getPositivityIcon }}</v-icon>
             </p>
           </v-col>
 
@@ -69,26 +68,36 @@
                 :spotify-url="rawStatsData['valence']['max']['spotify_url']"
             />
           </v-col>
+
+          <v-col cols="12" class="mt-3">
+            <Bubble v-if="this.popularityGraphChartData"
+                    :chart-options="popularityGraphOptions"
+                    :chart-data="popularityGraphChartData"
+                    chart-id="popularity-chart"
+                    dataset-id-key="popularity-chart"
+                    id="popularity-chart"
+            />
+          </v-col>
         </v-row>
       </v-col>
-
 
     </v-row>
   </v-col>
 </template>
 
 <script>
-import {Doughnut} from 'vue-chartjs/legacy'
-import {ArcElement, CategoryScale, Chart as ChartJS, Legend, Title, Tooltip} from 'chart.js'
+import {Bubble, Doughnut} from 'vue-chartjs/legacy'
+import {ArcElement, CategoryScale, Chart as ChartJS, Legend, LinearScale, PointElement, Title, Tooltip} from 'chart.js'
 import {Blue, Green, Orange, Red} from '@/helpers/colours'
 import TrackStatPanel from "@/components/TrackStatPanel";
 
-ChartJS.register(Title, Tooltip, Legend, ArcElement, CategoryScale)
+ChartJS.register(Title, Tooltip, Legend, ArcElement, CategoryScale, PointElement, LinearScale)
 
 export default {
   name: 'PopularityPositivity',
   components: {
     Doughnut,
+    Bubble,
     TrackStatPanel
   },
   props: {
@@ -97,11 +106,17 @@ export default {
       default() {
         return null
       }
+    },
+    positivityGraphData: {
+      type: Array,
+      default() {
+        return null
+      }
     }
   },
   data() {
     return {
-      chartOptions: {
+      popularityDoughnutOptions: {
         responsive: true,
         plugins: {
           tooltip: {
@@ -113,10 +128,39 @@ export default {
           }
         }
       },
+      popularityGraphOptions: {
+        responsive: true,
+        plugins: {
+          tooltip: {
+            enabled: false
+          },
+          legend: {
+            display: false
+          },
+          title: {
+            display: true,
+            text: 'Positivity vs Popularity vs Energy (Blob Size)'
+          }
+        },
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: 'Positivity (%)'
+            }
+          },
+          y: {
+            title: {
+              display: true,
+              text: 'Popularity (%)'
+            }
+          }
+        }
+      },
     }
   },
   computed: {
-    chartData() {
+    popularityDoughnutChartData() {
       return {
         datasets: [
           {
@@ -125,6 +169,16 @@ export default {
               this.rawStatsData["popularity"]["avg"]["value"],
               100 - this.rawStatsData["popularity"]["avg"]["value"]
             ]
+          }
+        ]
+      }
+    },
+    popularityGraphChartData() {
+      return {
+        datasets: [
+          {
+            backgroundColor: [Green],
+            data: this.positivityGraphData
           }
         ]
       }

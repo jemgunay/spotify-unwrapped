@@ -15,7 +15,7 @@
         <TrackStatPanel
             stat-title="Oldest Track"
             :track-name="rawStatsData['release_dates']['min']['name']"
-            :track-date="rawStatsData['release_dates']['min']['date']"
+            :track-meta="rawStatsData['release_dates']['min']['value']"
             :cover-image="rawStatsData['release_dates']['min']['cover_image']"
             :spotify-url="rawStatsData['release_dates']['min']['spotify_url']"
         />
@@ -24,7 +24,7 @@
         <TrackStatPanel
             stat-title="Youngest Track"
             :track-name="rawStatsData['release_dates']['max']['name']"
-            :track-date="rawStatsData['release_dates']['max']['date']"
+            :track-meta="rawStatsData['release_dates']['max']['value']"
             :cover-image="rawStatsData['release_dates']['max']['cover_image']"
             :spotify-url="rawStatsData['release_dates']['max']['spotify_url']"
         />

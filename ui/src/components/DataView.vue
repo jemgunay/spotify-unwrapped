@@ -84,7 +84,7 @@
           <v-divider></v-divider>
         </v-col>
 
-        <PopularityPositivity :rawStatsData="rawPlaylistStats"/>
+        <PopularityPositivity :rawStatsData="rawPlaylistStats" :positivityGraphData="positivityGraphData"/>
 
         <v-col cols="12">
           <v-divider></v-divider>
@@ -145,7 +145,8 @@ export default {
       generationDetails: null,
       topTitleWords: null,
       topArtists: null,
-      pitchKeyData: null
+      pitchKeyData: null,
+      positivityGraphData: null
     }
   },
   created() {
@@ -175,6 +176,7 @@ export default {
             this.topTitleWords = response.data["stats"]["top_title_words"];
             this.topArtists = response.data["stats"]["top_artists"];
             this.pitchKeyData = response.data["stats"]["pitch_key"];
+            this.positivityGraphData = response.data["stats"]["positivity_graph_data"];
 
             this.lastPlaylistID = this.playlistID;
             this.updatePlaylistIDQuery(this.playlistID);

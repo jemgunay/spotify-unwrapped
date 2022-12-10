@@ -41,6 +41,20 @@ export default {
           legend: {
             display: false
           }
+        },
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: 'Year Released'
+            }
+          },
+          y: {
+            title: {
+              display: true,
+              text: 'Track Count'
+            }
+          }
         }
       },
     }

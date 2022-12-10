@@ -71,7 +71,7 @@ export default {
         plugins: {
           title: {
             display: true,
-            text: 'Characteristic Averages'
+            text: 'Characteristic Averages (%)'
           }
         }
       }
