@@ -31,3 +31,4 @@ npm run serve
 * Redo screenshots
 * Add tooltips
 * Add general info btn for implementation details/limitations (i.e. max tracks per query)
+* Add hover for popularity vs positivity graph

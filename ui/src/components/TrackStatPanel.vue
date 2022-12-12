@@ -54,7 +54,7 @@ export default {
     coverImage: {
       type: String,
       default() {
-        return "placeholder.jpg"
+        return "images/placeholder.jpg"
       }
     },
     spotifyUrl: {
