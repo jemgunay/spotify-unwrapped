@@ -6,16 +6,10 @@ A web app for visualising Spotify playlist data.
 
 ## Screenshots
 
-<table class="border-collapse:collapse">
-  <tr>
-    <td>
-        <img src="screenshots/1.png"/>
-    </td>
-    <td>
-        <img src="screenshots/2.png"/>
-    </td>
-  </tr>
-</table>
+<p align="center">
+  <img src="screenshots/1.png" width="51%" align=top/>
+  <img src="screenshots/2.png" width="51%" align=top/>
+</p>
 
 ## Usage
 
