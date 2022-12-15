@@ -7,19 +7,15 @@ A web app for visualising Spotify playlist data.
 ## Screenshots
 
 <p align="center">
-  <img src="screenshots/1.png" width="40%"/>
-  <img src="screenshots/4.png" width="40%"/>
-</p>
-<p align="center">
-  <img src="screenshots/2.png" width="40%"/>
-  <img src="screenshots/3.png" width="40%"/>
+  <img src="screenshots/1.png" width="51%" align=top/>
+  <img src="screenshots/2.png" width="51%" align=top/>
 </p>
 
 ## Usage
 
 ```bash
 go run main.go
-# debug logs, e.g. full egress request logs
+# debug logs, e.g. full Spotify API request logs
 go run main.go -debug
 
 cd ui

@@ -132,7 +132,12 @@ export default {
         responsive: true,
         plugins: {
           tooltip: {
-            enabled: false
+            enabled: true,
+            callbacks: {
+              label: function (context) {
+                return context['element']['$context']['raw']['track'];
+              }
+            }
           },
           legend: {
             display: false
