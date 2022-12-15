@@ -126,10 +126,12 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 			pitchKeyCounts.Push(stats.SpotifyKeyToPitchKey(feature.Key))
 		}
 
+		track := trackIDLookup[feature.ID]
 		positivityGraphData = append(positivityGraphData, positivityGraphPoint{
-			X: feature.Valence * 100,
-			Y: trackIDLookup[feature.ID].Popularity,
-			R: normaliseBetweenRange(0, 1, 0, 3, feature.Energy),
+			Positivity: feature.Valence * 100,
+			Popularity: trackIDLookup[feature.ID].Popularity,
+			Energy:     normaliseBetweenRange(0, 1, 0, 3, feature.Energy),
+			Track:      track.GetTrackString(),
 		})
 	}
 
@@ -203,11 +205,13 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(respBody)
 }
 
-// positivityGraphPoint is the format expected by the positivity/popularity/energy bubble graph.
+// positivityGraphPoint is the format expected by the positivity/popularity/energy bubble graph. Energy levels are
+// represented by the point radius. Track metadata is also provided for tooltip hover,
 type positivityGraphPoint struct {
-	X float64 `json:"x"`
-	Y float64 `json:"y"`
-	R float64 `json:"r"`
+	Positivity float64 `json:"x"`
+	Popularity float64 `json:"y"`
+	Energy     float64 `json:"r"`
+	Track      string  `json:"track"`
 }
 
 func normaliseBetweenRange(a0, a1, b0, b1, a float64) float64 {

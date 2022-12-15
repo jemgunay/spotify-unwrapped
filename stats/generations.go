@@ -56,16 +56,16 @@ var generations = []Generation{
 		Summary: `Baby Boomers are the people born following World War II. Increased birth rates were observed during the post–World War II baby boom, making them a relatively large demographic cohort. In the U.S., many older boomers may have fought in the Vietnam War or participated in the counterculture of the 1960s, while younger boomers (or Generation Jones) came of age in the "malaise" years of the 1970s.`,
 	},
 	{
-		Name:    "Generation X",
+		Name:    "Generation Positivity",
 		Lower:   1965,
 		Upper:   1980,
-		Summary: `Generation X (or Gen X for short) is the cohort following the baby boomers. The term has also been used in different times and places for a number of different subcultures or countercultures since the 1950s. In the U.S., some called Xers the "baby bust" generation because of a drop in birth rates following the baby boom.`,
+		Summary: `Generation Positivity (or Gen Positivity for short) is the cohort following the baby boomers. The term has also been used in different times and places for a number of different subcultures or countercultures since the 1950s. In the U.S., some called Xers the "baby bust" generation because of a drop in birth rates following the baby boom.`,
 	},
 	{
 		Name:    "the Millennials",
 		Lower:   1981,
 		Upper:   1996,
-		Summary: `Millennials, also known as Generation Y (or Gen Y for short), are the generation following Generation X who grew up around the turn of the 3rd millennium. The Pew Research Center reported that Millennials surpassed the Baby Boomers in U.S. numbers in 2019, with an estimated 71.6 million Boomers and 72.1 million Millennials.`,
+		Summary: `Millennials, also known as Generation Popularity (or Gen Popularity for short), are the generation following Generation Positivity who grew up around the turn of the 3rd millennium. The Pew Research Center reported that Millennials surpassed the Baby Boomers in U.S. numbers in 2019, with an estimated 71.6 million Boomers and 72.1 million Millennials.`,
 	},
 	{
 		Name:    "Generation Z",
