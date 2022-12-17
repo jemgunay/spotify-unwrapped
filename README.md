@@ -14,6 +14,7 @@ A web app for visualising Spotify playlist data.
 ## Usage
 
 ```bash
+# set the env vars defined in config/default.env
 go run main.go
 # debug logs, e.g. full Spotify API request logs
 go run main.go -debug
@@ -24,6 +25,5 @@ npm run serve
 
 ## TODO
 
-* Redo screenshots
 * Add tooltips
 * Add general info btn for implementation details/limitations (i.e. max tracks per query)
