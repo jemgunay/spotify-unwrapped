@@ -86,7 +86,7 @@ export default {
           'Danceability',
           'Energy',
           'Liveness',
-          'Speechiness'
+          'Vocality'
         ],
         datasets: [
           {

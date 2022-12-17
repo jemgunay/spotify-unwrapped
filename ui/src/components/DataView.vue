@@ -92,11 +92,6 @@
 
         <MusicalComposition :rawStatsData="rawPlaylistStats" :pitchKeyData="pitchKeyData"/>
 
-        <!--<v-col cols="12">-->
-        <!--  <v-divider></v-divider>-->
-        <!--</v-col>-->
-        <!--<RawStatsTable :rawStatsData="rawPlaylistStats"/>-->
-
       </v-row>
     </v-col>
   </v-row>
@@ -112,7 +107,6 @@ import ExplicitPieChart from "@/components/charts/ExplicitPieChart";
 import AudioFeaturesPolar from "@/components/charts/AudioFeaturesPolar";
 import PopularityPositivity from "@/components/charts/PopularityPositivity";
 import MusicalComposition from "@/components/charts/MusicalComposition";
-// import RawStatsTable from "@/components/charts/RawStatsTable";
 
 export default {
   name: 'DataView',
@@ -124,7 +118,6 @@ export default {
     AudioFeaturesPolar,
     PopularityPositivity,
     MusicalComposition,
-    // RawStatsTable
   },
   data() {
     return {
