@@ -23,6 +23,14 @@ cd ui
 npm run serve
 ```
 
+## Deployment
+
+Backend deploys on merge to main. To build UI for distribution:
+
+```bash
+make build-ui
+```
+
 ## TODO
 
 * Add tooltips
