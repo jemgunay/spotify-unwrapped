@@ -16,3 +16,4 @@
 
 spotify-unwrapped
 config/local.env
+.DS_Store
