@@ -53,7 +53,7 @@ func (a API) PlaylistsHandler(w http.ResponseWriter, r *http.Request) {
 		popularity          stats.Group
 		releaseDates        stats.Group
 		releaseDatesMapping = stats.NewMapping(10)
-		explicitMapping     = stats.NewMapping(2)
+		explicitMapping     = stats.NewMapping(2, "non-explicit", "explicit")
 		titleWordMapping    = stats.NewMapping(100)
 		artistWordMapping   = stats.NewMapping(100)
 		trackIDsList        = make([]string, 0, len(playlistData.Tracks.TrackItems))
